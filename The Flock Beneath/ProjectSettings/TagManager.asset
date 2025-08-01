@@ -2,8 +2,11 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
-  tags: []
+  serializedVersion: 3
+  tags:
+  - shepherd
+  - sheep
+  - cloud
   layers:
   - Default
   - TransparentFX
@@ -11,9 +14,9 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Shepherd
+  - Sheep
+  - Cloud
   - 
   - 
   - 
@@ -41,3 +44,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: sheep
+    uniqueID: 3635280601
+    locked: 0
+  - name: shepherd
+    uniqueID: 3179903747
+    locked: 0
+  - name: cloud
+    uniqueID: 4044941667
+    locked: 0
+  m_RenderingLayers:
+  - Default
