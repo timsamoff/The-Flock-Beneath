@@ -7,6 +7,7 @@ TagManager:
   - shepherd
   - sheep
   - cloud
+  - corral
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - Shepherd
   - Sheep
   - Cloud
-  - 
+  - Corral
   - 
   - 
   - 
@@ -43,6 +44,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: corral
+    uniqueID: 2336636173
     locked: 0
   - name: sheep
     uniqueID: 3635280601
