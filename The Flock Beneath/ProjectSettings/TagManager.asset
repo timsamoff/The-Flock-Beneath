@@ -8,6 +8,8 @@ TagManager:
   - sheep
   - cloud
   - corral
+  - fence
+  - gate
   layers:
   - Default
   - TransparentFX
@@ -19,8 +21,8 @@ TagManager:
   - Sheep
   - Cloud
   - Corral
-  - 
-  - 
+  - Fence
+  - Gate
   - 
   - 
   - 
@@ -53,6 +55,12 @@ TagManager:
     locked: 0
   - name: shepherd
     uniqueID: 3179903747
+    locked: 0
+  - name: fence
+    uniqueID: 3257188961
+    locked: 0
+  - name: gate
+    uniqueID: 2800583289
     locked: 0
   - name: cloud
     uniqueID: 4044941667
