@@ -141,7 +141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalRotation.w
@@ -223,7 +223,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalRotation.w
@@ -324,7 +324,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -543,6 +543,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_Mass
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_LinearDamping
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_AngularDamping
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2766559228764536897, guid: 18941e2611798034289a67d439e17b27, type: 3}
       propertyPath: m_Name
       value: Sheep (1)
@@ -617,6 +629,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_Mass
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_LinearDamping
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_AngularDamping
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2766559228764536897, guid: 18941e2611798034289a67d439e17b27, type: 3}
       propertyPath: m_Name
       value: Sheep (2)
@@ -690,6 +714,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_Mass
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_LinearDamping
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_AngularDamping
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2766559228764536897, guid: 18941e2611798034289a67d439e17b27, type: 3}
       propertyPath: m_Name
       value: Sheep (4)
@@ -737,7 +773,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalRotation.w
@@ -835,6 +871,18 @@ PrefabInstance:
     - target: {fileID: 530744091474733142, guid: 18941e2611798034289a67d439e17b27, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_Mass
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_LinearDamping
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 759106493929593207, guid: 18941e2611798034289a67d439e17b27, type: 3}
+      propertyPath: m_AngularDamping
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2766559228764536897, guid: 18941e2611798034289a67d439e17b27, type: 3}
       propertyPath: m_Name
@@ -960,7 +1008,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1023,26 +1071,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2959842549950950924, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: m_Color.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2959842549950950924, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: m_Color.g
-      value: 0.9860232
-      objectReference: {fileID: 0}
-    - target: {fileID: 2959842549950950924, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: m_Color.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2959842549950950924, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: m_SortingLayer
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2959842549950950924, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: m_SortingLayerID
-      value: -1115063549
-      objectReference: {fileID: 0}
     - target: {fileID: 4412252298984751870, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.83
@@ -1086,26 +1114,6 @@ PrefabInstance:
     - target: {fileID: 4579575218967064462, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
       propertyPath: m_Name
       value: Shepherd
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327912446408573234, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: m_Constraints
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327912446408573234, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: m_Interpolate
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327912446408573234, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: m_GravityScale
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8365155644624844487, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: rotationSpeed
-      value: 2000
-      objectReference: {fileID: 0}
-    - target: {fileID: 8365155644624844487, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
-      propertyPath: accelerationTime
-      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1195,7 +1203,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5914451562643755401, guid: 9a53b08d161e68e4d8886e4537f01327, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1325,6 +1333,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 619394802}
+  - {fileID: 8476760911556162101}
   - {fileID: 4426078636662779003}
   - {fileID: 2435003556774851896}
   - {fileID: 695508905}
@@ -1336,5 +1345,4 @@ SceneRoots:
   - {fileID: 374174246}
   - {fileID: 504821396}
   - {fileID: 1786893033}
-  - {fileID: 8476760911556162101}
   - {fileID: 5740194895531625406}
