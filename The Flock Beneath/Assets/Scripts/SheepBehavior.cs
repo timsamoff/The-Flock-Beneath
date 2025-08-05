@@ -1,7 +1,8 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-public class OptimizedSheepBehavior : MonoBehaviour
+public class SheepBehavior : MonoBehaviour
 {
     private enum SheepState
     {
@@ -55,7 +56,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
     private float stuckTimer = 0f;
     private const float maxStuckTime = 2f;
     private float timeEnteredCorral = -1f;
-    
+
     private float lastCollisionCheck = 0f;
     private bool hasCollisionThisFrame = false;
     private float shepherdFollowDistanceSqr;
@@ -63,8 +64,11 @@ public class OptimizedSheepBehavior : MonoBehaviour
     private float sheepDetectionRadiusSqr;
     private Vector2 lastValidWanderTarget;
     private int pathfindingAttempts = 5;
-    
+    private GameManager gameManager;
+
     private static readonly Collider2D[] tempColliderArray = new Collider2D[10];
+
+    private static bool showGizmos = false;
 
     private void Awake()
     {
@@ -74,7 +78,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
 
         if (shepherd == null)
             shepherd = GameObject.FindGameObjectWithTag("Player")?.transform;
-            
+
         shepherdFollowDistanceSqr = shepherdFollowDistance * shepherdFollowDistance;
         sheepCollisionDistanceSqr = sheepCollisionDistance * sheepCollisionDistance;
         sheepDetectionRadiusSqr = sheepDetectionRadius * sheepDetectionRadius;
@@ -84,6 +88,14 @@ public class OptimizedSheepBehavior : MonoBehaviour
     {
         EnterGrazingState();
         lastValidWanderTarget = rb.position;
+    }
+
+    void Update()
+    {
+        if (Keyboard.current.gKey.wasPressedThisFrame)
+        {
+            showGizmos = !showGizmos;
+        }
     }
 
     private void FixedUpdate()
@@ -128,6 +140,11 @@ public class OptimizedSheepBehavior : MonoBehaviour
         CheckIfStuck();
     }
 
+    public void SetGameManager(GameManager gm)
+    {
+        gameManager = gm;
+    }
+
     private void EnterGrazingState()
     {
         currentState = SheepState.Grazing;
@@ -135,7 +152,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         isStuckOnFence = false;
         stuckTimer = 0f;
-        
+
         if (IsFullyInsideCorral())
         {
             currentState = SheepState.Corralled;
@@ -182,7 +199,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
         {
             MoveToward(wanderTarget, wanderSpeed);
         }
-        
+
         RotateTowardMovement();
 
         if ((rb.position - wanderTarget).sqrMagnitude < 0.04f)
@@ -210,11 +227,11 @@ public class OptimizedSheepBehavior : MonoBehaviour
         {
             float distanceToShepherdSqr = (rb.position - (Vector2)shepherd.position).sqrMagnitude;
             float timeInCorral = GetTimeInCorral();
-            
+
             bool shouldSettle = (timeInCorral > 1f && distanceToShepherdSqr < 9f) ||
                                timeInCorral > 3f ||
                                distanceToShepherdSqr > shepherdFollowDistanceSqr * 4f;
-            
+
             if (shouldSettle)
             {
                 EnterSettlingInCorralState();
@@ -271,14 +288,14 @@ public class OptimizedSheepBehavior : MonoBehaviour
         }
 
         HandleGrazing();
-        
+
         if (currentState == SheepState.Wandering)
         {
             if (!corralZone.bounds.Contains(wanderTarget))
             {
                 wanderTarget = GetRandomPointInCorral();
             }
-            
+
             MoveTowardInCorral(wanderTarget, wanderSpeed);
             RotateTowardMovement();
 
@@ -303,7 +320,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
 
     private void CheckIfStuck()
     {
-        if (rb.linearVelocity.sqrMagnitude < 0.0001f && 
+        if (rb.linearVelocity.sqrMagnitude < 0.0001f &&
             (currentState == SheepState.Wandering || currentState == SheepState.Disengaging))
         {
             stuckTimer += Time.fixedDeltaTime;
@@ -320,7 +337,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
                 {
                     EnterGrazingState();
                 }
-                
+
                 isStuckOnFence = false;
             }
         }
@@ -356,12 +373,12 @@ public class OptimizedSheepBehavior : MonoBehaviour
                 return target;
             }
         }
-        
+
         if (!IsFenceBetweenSimple(rb.position, lastValidWanderTarget))
         {
             return lastValidWanderTarget;
         }
-        
+
         return rb.position;
     }
 
@@ -375,7 +392,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
     private Vector2 GetRandomPointInCorral()
     {
         if (corralZone == null) return rb.position;
-        
+
         Bounds bounds = corralZone.bounds;
         float margin = 0.5f;
         return new Vector2(
@@ -392,7 +409,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
             if (avoidanceDirection != Vector2.zero)
             {
                 Vector2 alternativeTarget = rb.position + avoidanceDirection * wanderMinDistance;
-                
+
                 if (!IsFenceBetweenSimple(rb.position, alternativeTarget))
                 {
                     wanderTarget = alternativeTarget;
@@ -422,11 +439,11 @@ public class OptimizedSheepBehavior : MonoBehaviour
         {
             target = GetRandomPointInCorral();
         }
-        
+
         Vector2 direction = (target - rb.position).normalized;
         Vector2 desiredVelocity = direction * speed;
         Vector2 newVelocity = Vector2.SmoothDamp(rb.linearVelocity, desiredVelocity, ref velocityRef, 0.2f);
-        
+
         Vector2 futurePosition = rb.position + newVelocity * Time.fixedDeltaTime;
         if (corralZone.bounds.Contains(futurePosition))
         {
@@ -461,9 +478,19 @@ public class OptimizedSheepBehavior : MonoBehaviour
     {
         Vector2 direction = (to - from).normalized;
         float distance = Vector2.Distance(from, to);
-        
-        RaycastHit2D hit = Physics2D.Raycast(from, direction, distance);
-        return hit.collider != null && hit.collider.CompareTag("fence");
+        float[] angles = { -20f, 0f, 20f };
+
+        foreach (float angle in angles)
+        {
+            Vector2 rotatedDirection = Quaternion.Euler(0, 0, angle) * direction;
+            RaycastHit2D hit = Physics2D.Raycast(from, rotatedDirection, distance);
+            if (hit.collider != null && hit.collider.CompareTag("fence"))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Vector2 GetDirectionAwayFromFence()
@@ -473,7 +500,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
             new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized,
             new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized
         };
-        
+
         foreach (Vector2 dir in directions)
         {
             Vector2 testPoint = rb.position + dir * (wanderMinDistance * 1.5f);
@@ -482,7 +509,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
                 return dir;
             }
         }
-        
+
         return Vector2.zero;
     }
 
@@ -500,14 +527,14 @@ public class OptimizedSheepBehavior : MonoBehaviour
                 return 0f;
             }
         }
-        
+
         return Time.time - timeEnteredCorral;
     }
 
     private bool IsCollidingWithOtherSheep()
     {
         int hitCount = Physics2D.OverlapCircleNonAlloc(rb.position, sheepDetectionRadius, tempColliderArray);
-        
+
         for (int i = 0; i < hitCount; i++)
         {
             Collider2D col = tempColliderArray[i];
@@ -520,7 +547,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -528,7 +555,7 @@ public class OptimizedSheepBehavior : MonoBehaviour
     {
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
-        
+
         EnterGrazingState();
         stateTimer = Random.Range(maxGrazingTime, maxGrazingTime * 1.5f);
     }
@@ -543,4 +570,28 @@ public class OptimizedSheepBehavior : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying || !showGizmos) return;
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(wanderTarget, 0.15f);
+
+        Gizmos.color = Color.cyan;
+        Vector2 forward = rb.linearVelocity.normalized;
+        Gizmos.DrawLine(rb.position, rb.position + forward);
+
+        Gizmos.color = Color.red;
+        Vector2 direction = (wanderTarget - rb.position).normalized;
+        float distance = Vector2.Distance(rb.position, wanderTarget);
+        float[] angles = { -20f, 0f, 20f };
+
+        foreach (float angle in angles)
+        {
+            Vector2 rotated = Quaternion.Euler(0, 0, angle) * direction;
+            Gizmos.DrawRay(rb.position, rotated * distance);
+        }
+    }
+
 }
