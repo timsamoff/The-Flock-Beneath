@@ -375,9 +375,9 @@ MonoBehaviour:
   corralPrefab: {fileID: 6075986807883212546, guid: 7ffda15fb2e26fb4ebd70b70da44ba71, type: 3}
   screenEdgeBuffer: 3.7
   corralScreenPadding: 2
-  corralAvoidanceRadius: 3
+  corralAvoidanceRadius: 0
   testMode: 1
-  testLevelAmount: 5
+  testLevelAmount: 50
   currentLevel: 1
   maxSpawnAttempts: 50
   minSpawnDistance: 2

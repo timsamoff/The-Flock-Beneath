@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
     private List<Vector3> occupiedPositions = new List<Vector3>();
 
     private float screenLeft, screenRight, screenTop, screenBottom;
-    private Bounds corralAvoidanceBounds; // Area around corral to avoid for spawning
+    private Bounds corralAvoidanceBounds;
 
     void Start()
     {
@@ -50,12 +50,12 @@ public class GameManager : MonoBehaviour
     void CalculateScreenBounds()
     {
         Camera cam = Camera.main;
-        
+
         if (cam.orthographic)
         {
             float orthoSize = cam.orthographicSize;
             float aspect = cam.aspect;
-            
+
             screenLeft = -orthoSize * aspect + screenEdgeBuffer;
             screenRight = orthoSize * aspect - screenEdgeBuffer;
             screenBottom = -orthoSize + screenEdgeBuffer;
@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
         else
         {
             float zDistance = Mathf.Abs(cam.transform.position.z);
-            
+
             Vector3 bottomLeft = cam.ScreenToWorldPoint(new Vector3(0, 0, zDistance));
             Vector3 topRight = cam.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
 
@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
             screenBottom = bottomLeft.y + screenEdgeBuffer;
             screenTop = topRight.y - screenEdgeBuffer;
         }
-        
+
         Debug.Log($"Camera Type: {(cam.orthographic ? "Orthographic" : "Perspective")}");
         Debug.Log($"Screen bounds: Left={screenLeft:F2}, Right={screenRight:F2}, Bottom={screenBottom:F2}, Top={screenTop:F2}");
         Debug.Log($"Screen area: {(screenRight - screenLeft) * (screenTop - screenBottom):F2} square units");
@@ -163,13 +163,15 @@ public class GameManager : MonoBehaviour
         if (corralCollider != null)
         {
             Bounds corralBounds = corralCollider.bounds;
-            
-            Vector3 expandedSize = corralBounds.size + Vector3.one * (corralAvoidanceRadius * 2f);
-            corralAvoidanceBounds = new Bounds(corralBounds.center, expandedSize);
+            corralBounds.Expand(corralAvoidanceRadius * 2f); // expand in all directions
+            corralAvoidanceBounds = corralBounds;
+
+            Debug.Log($"Corral pos={spawnedCorral.transform.position}, corralBoundsCenter={corralAvoidanceBounds.center}, size={corralAvoidanceBounds.size}");
+
         }
         else
         {
-            corralAvoidanceBounds = new Bounds(spawnedCorral.transform.position, 
+            corralAvoidanceBounds = new Bounds(spawnedCorral.transform.position,
                 Vector3.one * (corralAvoidanceRadius * 2f));
         }
     }
@@ -192,24 +194,24 @@ public class GameManager : MonoBehaviour
         int successfulSpawns = 0;
         int attempts = 0;
         int maxTotalAttempts = maxSpawnAttempts * count;
-        
+
         float currentMinDistance = minSpawnDistance;
         float currentCorralAvoidance = corralAvoidanceRadius;
-        
-        Debug.Log($"Attempting to spawn {count} sheep. Screen area available: {(screenRight-screenLeft)*(screenTop-screenBottom):F2}");
-        
+
+        Debug.Log($"Attempting to spawn {count} sheep. Screen area available: {(screenRight - screenLeft) * (screenTop - screenBottom):F2}");
+
         for (int i = 0; i < count && attempts < maxTotalAttempts; i++)
         {
             Vector3 spawnPos = GetValidSpawnPosition(currentMinDistance, currentCorralAvoidance);
             attempts++;
-            
+
             if (spawnPos == Vector3.zero && attempts % (maxSpawnAttempts / 2) == 0)
             {
                 currentMinDistance = Mathf.Max(0.5f, currentMinDistance * 0.8f);
                 currentCorralAvoidance = Mathf.Max(1f, currentCorralAvoidance * 0.8f);
                 Debug.Log($"Relaxing constraints: minDistance={currentMinDistance:F2}, corralAvoidance={currentCorralAvoidance:F2}");
             }
-            
+
             if (spawnPos == Vector3.zero)
             {
                 Debug.LogWarning($"Attempt {attempts}: Could not find valid spawn position for sheep {i + 1}");
@@ -218,7 +220,7 @@ public class GameManager : MonoBehaviour
             }
 
             Debug.Log($"Spawning sheep {i + 1} at position {spawnPos}");
-            
+
             float randomZ = Random.Range(0f, 360f);
             GameObject sheep = Instantiate(sheepPrefab, spawnPos, Quaternion.Euler(0f, 0f, randomZ));
             spawnedSheep.Add(sheep);
@@ -245,40 +247,40 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
-            
-            if (spawnPos.x < screenLeft || spawnPos.x > screenRight || 
+
+            if (spawnPos.x < screenLeft || spawnPos.x > screenRight ||
                 spawnPos.y < screenBottom || spawnPos.y > screenTop)
             {
                 Debug.LogError($"ERROR: Sheep spawned outside screen bounds! Position: {spawnPos}, Bounds: ({screenLeft}, {screenBottom}) to ({screenRight}, {screenTop})");
             }
-            
+
             successfulSpawns++;
         }
-        
+
         Debug.Log($"Successfully spawned {successfulSpawns}/{count} sheep after {attempts} attempts");
         Debug.Log($"Final constraints used: minDistance={currentMinDistance:F2}, corralAvoidance={currentCorralAvoidance:F2}");
-        
+
         if (successfulSpawns < count)
         {
             Debug.LogError($"Could only spawn {successfulSpawns} out of {count} requested sheep. " +
                           "Consider DECREASING screenEdgeBuffer, DECREASING minSpawnDistance, or INCREASING maxSpawnAttempts.");
         }
-        
+
         if (successfulSpawns != count)
         {
             Debug.Log($"Updating sheep count from {count} to {successfulSpawns}");
             SetTotalSheep(successfulSpawns);
         }
     }
-    
+
     bool IsSheepVisible(GameObject sheep)
     {
         if (sheep == null) return false;
-        
+
         Camera cam = Camera.main;
         Vector3 viewportPoint = cam.WorldToViewportPoint(sheep.transform.position);
-        
-        return viewportPoint.x >= 0.05f && viewportPoint.x <= 0.95f && 
+
+        return viewportPoint.x >= 0.05f && viewportPoint.x <= 0.95f &&
                viewportPoint.y >= 0.05f && viewportPoint.y <= 0.95f &&
                viewportPoint.z > 0; // In front of camera
     }
@@ -287,7 +289,7 @@ public class GameManager : MonoBehaviour
     {
         if (currentMinDistance < 0) currentMinDistance = minSpawnDistance;
         if (currentCorralAvoidance < 0) currentCorralAvoidance = corralAvoidanceRadius;
-        
+
         for (int i = 0; i < maxSpawnAttempts; i++)
         {
             Vector3 pos = new Vector3(
@@ -296,13 +298,13 @@ public class GameManager : MonoBehaviour
                 0f
             );
 
-            if (IsValidSpawnPosition(pos, currentMinDistance, currentCorralAvoidance)) 
+            if (IsValidSpawnPosition(pos, currentMinDistance, currentCorralAvoidance))
             {
                 Debug.Log($"Found valid spawn position: {pos} (attempt {i + 1})");
                 return pos;
             }
         }
-        
+
         Debug.LogWarning($"Failed to find valid spawn position after {maxSpawnAttempts} attempts");
         return Vector3.zero;
     }
@@ -310,39 +312,20 @@ public class GameManager : MonoBehaviour
     bool IsValidSpawnPosition(Vector3 pos, float currentMinDistance = -1f, float currentCorralAvoidance = -1f)
     {
         if (currentMinDistance < 0) currentMinDistance = minSpawnDistance;
-        if (currentCorralAvoidance < 0) currentCorralAvoidance = corralAvoidanceRadius;
-        
+
         if (pos.x < screenLeft || pos.x > screenRight || pos.y < screenBottom || pos.y > screenTop)
-        {
-            Debug.Log($"Position {pos} rejected: outside screen bounds ({screenLeft:F1}, {screenBottom:F1}) to ({screenRight:F1}, {screenTop:F1})");
             return false;
-        }
-            
+
         foreach (Vector3 other in occupiedPositions)
         {
-            float distance = Vector3.Distance(pos, other);
-            if (distance < currentMinDistance)
-            {
-                Debug.Log($"Position {pos} rejected: too close to {other} (distance: {distance:F2}, min: {currentMinDistance:F2})");
+            if (Vector3.Distance(pos, other) < currentMinDistance)
                 return false;
-            }
         }
 
         if (spawnedCorral != null)
         {
-            Collider2D corralCollider = spawnedCorral.GetComponent<Collider2D>();
-            if (corralCollider != null && corralCollider.bounds.Contains(pos))
-            {
-                Debug.Log($"Position {pos} rejected: inside corral bounds");
+            if (corralAvoidanceBounds.Contains(pos))
                 return false;
-            }
-
-            float distanceToCorral = Vector3.Distance(pos, spawnedCorral.transform.position);
-            if (distanceToCorral < currentCorralAvoidance)
-            {
-                Debug.Log($"Position {pos} rejected: too close to corral (distance: {distanceToCorral:F2}, min: {currentCorralAvoidance:F2})");
-                return false;
-            }
         }
 
         return true;
@@ -415,4 +398,14 @@ public class GameManager : MonoBehaviour
         // Placeholder for cloud movement
         Debug.Log("Cloud update - placeholder");
     }
+    
+    void OnDrawGizmos()
+{
+    if (Application.isPlaying && spawnedCorral != null)
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(corralAvoidanceBounds.center, corralAvoidanceBounds.size);
+    }
+}
+
 }
