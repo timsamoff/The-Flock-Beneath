@@ -67,8 +67,8 @@ public class SheepBehavior : MonoBehaviour
     private GameManager gameManager;
 
     private static readonly Collider2D[] tempColliderArray = new Collider2D[10];
-
     private static bool showGizmos = false;
+    private bool isCorralled = false;
 
     private void Awake()
     {
@@ -145,6 +145,25 @@ public class SheepBehavior : MonoBehaviour
         gameManager = gm;
     }
 
+    // Trigger methods for corral entry/exit
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other == corralZone && gameManager != null && !isCorralled)
+        {
+            isCorralled = true;
+            gameManager.SheepEnteredCorral(this);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other == corralZone && gameManager != null && isCorralled)
+        {
+            isCorralled = false;
+            gameManager.SheepLeftCorral(this);
+        }
+    }
+
     private void EnterGrazingState()
     {
         currentState = SheepState.Grazing;
@@ -152,18 +171,13 @@ public class SheepBehavior : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         isStuckOnFence = false;
         stuckTimer = 0f;
-
-        if (IsFullyInsideCorral())
-        {
-            currentState = SheepState.Corralled;
-        }
     }
 
     private void HandleGrazing()
     {
         stateTimer -= Time.fixedDeltaTime;
 
-        if (IsShepherdInRange() && currentState != SheepState.Corralled)
+        if (IsShepherdInRange() && !isCorralled)
         {
             EnterFollowingState();
             return;
@@ -171,7 +185,7 @@ public class SheepBehavior : MonoBehaviour
 
         if (stateTimer <= 0f)
         {
-            if (currentState == SheepState.Corralled)
+            if (isCorralled)
             {
                 wanderTarget = GetRandomPointInCorral();
             }
@@ -185,13 +199,13 @@ public class SheepBehavior : MonoBehaviour
 
     private void HandleWandering()
     {
-        if (IsShepherdInRange() && currentState != SheepState.Corralled)
+        if (IsShepherdInRange() && !isCorralled)
         {
             EnterFollowingState();
             return;
         }
 
-        if (currentState == SheepState.Corralled)
+        if (isCorralled)
         {
             MoveTowardInCorral(wanderTarget, wanderSpeed);
         }
@@ -223,14 +237,14 @@ public class SheepBehavior : MonoBehaviour
         followTimer += Time.fixedDeltaTime;
         disengageCheckTimer -= Time.fixedDeltaTime;
 
-        if (IsFullyInsideCorral())
+        if (IsFullyInsideCorral() && !isCorralled)
         {
             float distanceToShepherdSqr = (rb.position - (Vector2)shepherd.position).sqrMagnitude;
             float timeInCorral = GetTimeInCorral();
 
             bool shouldSettle = (timeInCorral > 1f && distanceToShepherdSqr < 9f) ||
-                               timeInCorral > 3f ||
-                               distanceToShepherdSqr > shepherdFollowDistanceSqr * 4f;
+                                timeInCorral > 3f ||
+                                distanceToShepherdSqr > shepherdFollowDistanceSqr * 4f;
 
             if (shouldSettle)
             {
@@ -273,17 +287,16 @@ public class SheepBehavior : MonoBehaviour
 
         if (stateTimer <= 0f)
         {
-            EnterGrazingState();
+            currentState = SheepState.Corralled;
         }
     }
 
     private void HandleCorralled()
     {
-        if (!IsFullyInsideCorral())
+        if (!IsFullyInsideCorral() && isCorralled)
         {
-            Vector2 corralCenter = corralZone.bounds.center;
-            MoveToward(corralCenter, wanderSpeed * 0.5f);
-            RotateToward(corralCenter);
+            isCorralled = false;
+            gameManager.SheepLeftCorral(this);
             return;
         }
 
@@ -483,7 +496,7 @@ public class SheepBehavior : MonoBehaviour
         foreach (float angle in angles)
         {
             Vector2 rotatedDirection = Quaternion.Euler(0, 0, angle) * direction;
-            RaycastHit2D hit = Physics2D.Raycast(from, rotatedDirection, distance);
+            RaycastHit2D hit = Physics2D.Raycast(from, rotatedDirection, distance, LayerMask.GetMask("fence"));
             if (hit.collider != null && hit.collider.CompareTag("fence"))
             {
                 return true;
@@ -533,7 +546,7 @@ public class SheepBehavior : MonoBehaviour
 
     private bool IsCollidingWithOtherSheep()
     {
-        int hitCount = Physics2D.OverlapCircleNonAlloc(rb.position, sheepDetectionRadius, tempColliderArray);
+        int hitCount = Physics2D.OverlapCircleNonAlloc(rb.position, sheepDetectionRadius, tempColliderArray, LayerMask.GetMask("Sheep"));
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -562,15 +575,18 @@ public class SheepBehavior : MonoBehaviour
 
     private void CheckScreenBounds()
     {
-        Vector3 sheepMin = mainCam.WorldToViewportPoint(sheepCollider.bounds.min);
-        Vector3 sheepMax = mainCam.WorldToViewportPoint(sheepCollider.bounds.max);
+        Vector3 viewportPoint = mainCam.WorldToViewportPoint(transform.position);
 
-        if (sheepMax.x < -0.1f || sheepMin.x > 1.1f || sheepMax.y < -0.1f || sheepMin.y > 1.1f)
+        if (viewportPoint.x < -0.1f || viewportPoint.x > 1.1f || viewportPoint.y < -0.1f || viewportPoint.y > 1.1f)
         {
+            if (gameManager != null)
+            {
+                gameManager.SheepLost(this);
+            }
             Destroy(gameObject);
         }
     }
-    
+
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying || !showGizmos) return;
@@ -593,5 +609,4 @@ public class SheepBehavior : MonoBehaviour
             Gizmos.DrawRay(rb.position, rotated * distance);
         }
     }
-
 }
