@@ -511,7 +511,7 @@ MonoBehaviour:
   corralPrefab: {fileID: 6075986807883212546, guid: 7ffda15fb2e26fb4ebd70b70da44ba71, type: 3}
   currentLevel: 1
   level1StartingSheep: 2
-  levelTransitionDelay: 2
+  levelTransitionDelay: 1
   screenEdgeBuffer: 0.5
   corralScreenPadding: -1.7
   maxSpawnAttempts: 50

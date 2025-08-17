@@ -68,7 +68,7 @@ public class SheepBehavior : MonoBehaviour
 
     private static readonly Collider2D[] tempColliderArray = new Collider2D[10];
     private static bool showGizmos = false;
-    private bool isCorralled = false;
+    [HideInInspector] public bool isCorralled = false;
 
     private void Awake()
     {
@@ -96,6 +96,8 @@ public class SheepBehavior : MonoBehaviour
         {
             showGizmos = !showGizmos;
         }
+
+        CheckCorralStatus();
     }
 
     private void FixedUpdate()
@@ -145,22 +147,32 @@ public class SheepBehavior : MonoBehaviour
         gameManager = gm;
     }
 
-    // Trigger methods for corral entry/exit
-    private void OnTriggerEnter2D(Collider2D other)
+    private void CheckCorralStatus()
     {
-        if (other == corralZone && gameManager != null && !isCorralled)
+        if (corralZone == null) return;
+
+        bool isCurrentlyInCorral = corralZone.bounds.Contains(GetComponent<Collider2D>().bounds.min) &&
+                                   corralZone.bounds.Contains(GetComponent<Collider2D>().bounds.max);
+
+        // If enters
+        if (isCurrentlyInCorral && !isCorralled)
         {
             isCorralled = true;
-            gameManager.SheepEnteredCorral(this);
+            if (gameManager != null)
+            {
+                gameManager.SheepEnteredCorral(this);
+                Debug.Log("Sheep is fully inside the corral. Counted!");
+            }
         }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other == corralZone && gameManager != null && isCorralled)
+        // If sheep leaves corral
+        else if (!isCurrentlyInCorral && isCorralled)
         {
             isCorralled = false;
-            gameManager.SheepLeftCorral(this);
+            if (gameManager != null)
+            {
+                gameManager.SheepLeftCorral(this);
+                Debug.Log("Sheep has left the corral. Un-counted.");
+            }
         }
     }
 
@@ -546,18 +558,17 @@ public class SheepBehavior : MonoBehaviour
 
     private bool IsCollidingWithOtherSheep()
     {
-        int hitCount = Physics2D.OverlapCircleNonAlloc(rb.position, sheepDetectionRadius, tempColliderArray, LayerMask.GetMask("Sheep"));
+        Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(rb.position, sheepDetectionRadius, LayerMask.GetMask("Sheep"));
 
-        for (int i = 0; i < hitCount; i++)
+        foreach (Collider2D col in nearbyColliders)
         {
-            Collider2D col = tempColliderArray[i];
-            if (col != sheepCollider && col.CompareTag("sheep"))
+            if (col == sheepCollider) continue;
+
+            // Check distance to other sheep
+            float distanceSqr = (rb.position - (Vector2)col.transform.position).sqrMagnitude;
+            if (distanceSqr < sheepCollisionDistanceSqr)
             {
-                float distanceSqr = (rb.position - (Vector2)col.transform.position).sqrMagnitude;
-                if (distanceSqr < sheepCollisionDistanceSqr)
-                {
-                    return true;
-                }
+                return true;
             }
         }
 

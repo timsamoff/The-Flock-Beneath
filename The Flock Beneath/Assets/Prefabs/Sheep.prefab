@@ -92,6 +92,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -113,6 +115,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
   m_SortingLayer: 2
   m_SortingOrder: 0
@@ -171,12 +174,12 @@ MonoBehaviour:
   wanderSpeed: 1.2
   minGrazingTime: 2
   maxGrazingTime: 5
-  followSpeed: 2
+  followSpeed: 2.5
   shepherdFollowDistance: 2.5
   minFollowTime: 4
   disengageCheckInterval: 2
-  disengageChancePerCheck: 1
-  timeToSettleInCorral: 0.01
+  disengageChancePerCheck: 0.15
+  timeToSettleInCorral: 0.1
   sheepDetectionRadius: 1.2
   sheepCollisionDistance: 1.8
   collisionCheckInterval: 0.1
@@ -234,6 +237,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -255,6 +260,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
   m_SortingLayer: 2
   m_SortingOrder: 1
@@ -322,6 +328,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -343,6 +351,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
   m_SortingLayer: 2
   m_SortingOrder: 0

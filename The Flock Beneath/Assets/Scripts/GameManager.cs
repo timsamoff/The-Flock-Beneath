@@ -15,9 +15,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject corralPrefab;
 
     [Header("Level Settings")]
-    [SerializeField] private bool testMode = false;
-    [SerializeField] private int testLevelAmount = 10;
     [SerializeField] private int currentLevel = 1;
+    [SerializeField] private int level1StartingSheep = 2;
+    [SerializeField] private float levelTransitionDelay = 2f;
 
     [Header("Corral Spawning")]
     [SerializeField] private float screenEdgeBuffer = 0.2f;
@@ -29,7 +29,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int maxTeleportAttempts = 50;
     [SerializeField] private float corralAvoidanceRadius = 1.0f;
 
-    [Header("Debug Visualization")]
+    [Header("Debug Settings")]
+    [SerializeField] private bool testMode = false;
+    [SerializeField] private int testLevelAmount = 10;
     [SerializeField] private bool showDebugGizmos = true;
     [SerializeField] private bool showCorralBounds = true;
     [SerializeField] private bool showScreenBounds = true;
@@ -55,6 +57,8 @@ public class GameManager : MonoBehaviour
     private bool prevShowScreenBounds;
     private bool prevShowAvoidanceBounds;
 
+    private bool isLevelTransitioning = false;
+
     void Start()
     {
         Cursor.visible = false;
@@ -76,6 +80,9 @@ public class GameManager : MonoBehaviour
         {
             RefreshDebugVisuals();
         }
+
+        // Check for level completion every frame
+        CheckLevelComplete();
     }
 
     bool HasDebugSettingsChanged()
@@ -142,10 +149,13 @@ public class GameManager : MonoBehaviour
 
     public void StartLevel()
     {
+        isLevelTransitioning = false;
+        corralledSheep = 0;
+        lostSheep = 0;
+
         ClearPreviousSpawns();
 
         int sheepCount = testMode ? testLevelAmount : GetFibonacciSheepCount(currentLevel);
-        Debug.Log($"Starting Level {currentLevel} - Test Mode: {testMode}, Sheep Count: {sheepCount}");
         SetTotalSheep(sheepCount);
 
         SpawnCorral();
@@ -167,15 +177,22 @@ public class GameManager : MonoBehaviour
 
     int GetFibonacciSheepCount(int level)
     {
-        if (level <= 1) return 2;
-        int a = 1, b = 1;
-        for (int i = 2; i <= level; i++)
+        if (level <= 1)
+        {
+            return level1StartingSheep;
+        }
+
+        int a = 1;
+        int b = level1StartingSheep;
+
+        for (int i = 2; i < level; i++)
         {
             int temp = a + b;
             a = b;
             b = temp;
         }
-        return b;
+
+        return a + b;
     }
 
     void ClearPreviousSpawns()
@@ -439,18 +456,6 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"Successfully spawned {successfulSpawns}/{count} sheep after {attempts} attempts");
         Debug.Log($"Final constraints used: minDistance={currentMinDistance:F2}");
-
-        if (successfulSpawns < count)
-        {
-            Debug.LogError($"Could only spawn {successfulSpawns} out of {count} requested sheep. " +
-                           "Consider DECREASING minSpawnDistance or INCREASING maxSpawnAttempts.");
-        }
-
-        if (successfulSpawns != count)
-        {
-            Debug.Log($"Updating sheep count from {count} to {successfulSpawns}");
-            SetTotalSheep(successfulSpawns);
-        }
     }
 
     bool IsPositionInCorral(Vector3 position)
@@ -733,7 +738,8 @@ public class GameManager : MonoBehaviour
 
     public void SetTotalSheep(int count)
     {
-        startingSheep = totalSheep = count;
+        startingSheep = count;
+        totalSheep = count;
         Debug.Log($"SetTotalSheep called: startingSheep={startingSheep}, totalSheep={totalSheep}");
         UpdateUI();
     }
@@ -756,11 +762,8 @@ public class GameManager : MonoBehaviour
     public void SheepLost(SheepBehavior sheep)
     {
         lostSheep++;
-
-        // Decrement the startingSheep variable (needs more testing)
-        startingSheep--;
-
-        Debug.Log($"SheepLost called: lostSheep={lostSheep}, startingSheep={startingSheep}");
+        totalSheep--;
+        Debug.Log($"SheepLost called: lostSheep={lostSheep}, totalSheep={totalSheep}");
 
         if (spawnedSheep.Contains(sheep.gameObject))
             spawnedSheep.Remove(sheep.gameObject);
@@ -771,11 +774,30 @@ public class GameManager : MonoBehaviour
 
     void CheckLevelComplete()
     {
-        if (corralledSheep + lostSheep >= startingSheep)
+        if (isLevelTransitioning) return;
+
+        if (corralledSheep + lostSheep >= totalSheep)
         {
-            Debug.Log($"Level {currentLevel} complete! All sheep accounted for.");
-            currentLevel++;
-            Invoke(nameof(StartLevel), 2f);
+            Debug.Log("All sheep are accounted for. Checking for full corral...");
+
+            bool allCorralledSheepAreInCorral = true;
+            foreach (var sheep in spawnedSheep)
+            {
+                SheepBehavior sb = sheep.GetComponent<SheepBehavior>();
+                if (sb != null && sb.isCorralled && !IsPositionInCorral(sheep.transform.position))
+                {
+                    allCorralledSheepAreInCorral = false;
+                    break;
+                }
+            }
+
+            if (allCorralledSheepAreInCorral)
+            {
+                Debug.Log($"Level {currentLevel} complete! All sheep accounted for and inside the corral.");
+                isLevelTransitioning = true;
+                currentLevel++;
+                Invoke(nameof(StartLevel), levelTransitionDelay);
+            }
         }
     }
 
