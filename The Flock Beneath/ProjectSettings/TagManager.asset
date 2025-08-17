@@ -50,17 +50,17 @@ TagManager:
   - name: corral
     uniqueID: 2336636173
     locked: 0
-  - name: sheep
-    uniqueID: 3635280601
-    locked: 0
-  - name: shepherd
-    uniqueID: 3179903747
-    locked: 0
   - name: fence
     uniqueID: 3257188961
     locked: 0
   - name: gate
     uniqueID: 2800583289
+    locked: 0
+  - name: sheep
+    uniqueID: 3635280601
+    locked: 0
+  - name: shepherd
+    uniqueID: 3179903747
     locked: 0
   - name: cloud
     uniqueID: 4044941667
