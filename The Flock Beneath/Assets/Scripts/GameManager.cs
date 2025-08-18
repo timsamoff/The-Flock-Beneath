@@ -322,7 +322,7 @@ public class GameManager : MonoBehaviour
         // Shepherd vs screen center
         Vector3 direction = targetPos - spawnPos;
 
-        // Aangle relative to the positive x-axis
+        // Angle relative to the positive x-axis
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
         // Face center

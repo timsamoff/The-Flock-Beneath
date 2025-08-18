@@ -179,6 +179,7 @@ MonoBehaviour:
   minFollowTime: 4
   disengageCheckInterval: 2.5
   disengageChancePerCheck: 0.15
+  shepherdDisengageDistance: 5
   timeToSettleInCorral: 0.1
   sheepDetectionRadius: 1.2
   sheepCollisionDistance: 1.8

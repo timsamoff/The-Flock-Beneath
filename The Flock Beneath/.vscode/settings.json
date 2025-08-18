@@ -66,5 +66,13 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj",
     },
-    "dotnet.defaultSolution": "The Flock Beneath.sln"
+    "dotnet.defaultSolution": "The Flock Beneath.sln",
+    "cSpell.words": [
+        "Behaviour",
+        "Lerp",
+        "Mathf",
+        "pathfinding",
+        "Rigidbody",
+        "TELEPORTING"
+    ]
 }
