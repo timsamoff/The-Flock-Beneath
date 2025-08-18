@@ -117,7 +117,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
-  m_SortingLayer: 2
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -177,8 +177,8 @@ MonoBehaviour:
   followSpeed: 2.5
   shepherdFollowDistance: 2.5
   minFollowTime: 4
-  disengageCheckInterval: 3
-  disengageChancePerCheck: 0.1
+  disengageCheckInterval: 2.5
+  disengageChancePerCheck: 0.15
   timeToSettleInCorral: 0.1
   sheepDetectionRadius: 1.2
   sheepCollisionDistance: 1.8
@@ -263,7 +263,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
-  m_SortingLayer: 2
+  m_SortingLayer: 4
   m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
@@ -354,7 +354,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
-  m_SortingLayer: 2
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -8636221404721523813, guid: cc29ba887026e874ca4f058069f0bb03, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
