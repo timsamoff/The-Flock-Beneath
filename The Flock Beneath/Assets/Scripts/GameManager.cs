@@ -165,7 +165,7 @@ public class GameManager : MonoBehaviour
 
         ClearPreviousSpawns();
 
-        int sheepCount = testMode ? testLevelAmount : GetFibonacciSheepCount(currentLevel);
+        int sheepCount = testMode ? testLevelAmount : GetSheepCount(currentLevel);
         SetTotalSheep(sheepCount);
 
         SpawnCorral();
@@ -190,24 +190,31 @@ public class GameManager : MonoBehaviour
         UpdateUI();
     }
 
-    int GetFibonacciSheepCount(int level)
+    // int GetFibonacciSheepCount(int level)
+    // {
+    //     if (level <= 1)
+    //     {
+    //         return level1StartingSheep;
+    //     }
+
+    //     int a = 1;
+    //     int b = level1StartingSheep;
+
+    //     for (int i = 2; i < level; i++)
+    //     {
+    //         int temp = a + b;
+    //         a = b;
+    //         b = temp;
+    //     }
+
+    //     return a + b;
+    // }
+
+    int GetSheepCount(int level)
     {
-        if (level <= 1)
-        {
-            return level1StartingSheep;
-        }
-
-        int a = 1;
-        int b = level1StartingSheep;
-
-        for (int i = 2; i < level; i++)
-        {
-            int temp = a + b;
-            a = b;
-            b = temp;
-        }
-
-        return a + b;
+        float k = 1.286f;
+        int sheepCount = Mathf.RoundToInt(2 + (level - 1) * k);
+        return sheepCount;
     }
 
     void ClearPreviousSpawns()
