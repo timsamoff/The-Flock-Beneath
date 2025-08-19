@@ -42,6 +42,9 @@ public class GameManager : MonoBehaviour
     private int corralledSheep = 0;
     private int lostSheep = 0;
 
+    // Clouds
+    private CloudManager cloudManager;
+
     private List<GameObject> spawnedSheep = new List<GameObject>();
     private List<GameObject> debugLines = new List<GameObject>();
     private GameObject spawnedShepherd;
@@ -69,6 +72,13 @@ public class GameManager : MonoBehaviour
         prevShowCorralBounds = showCorralBounds;
         prevShowScreenBounds = showScreenBounds;
         prevShowAvoidanceBounds = showAvoidanceBounds;
+
+        cloudManager = FindFirstObjectByType<CloudManager>();
+
+        if (cloudManager == null)
+        {
+            Debug.LogWarning("No CloudManager found in scene!");
+        }
 
         StartLevel();
     }
@@ -162,6 +172,11 @@ public class GameManager : MonoBehaviour
         CalculateCorralAvoidanceArea();
         SpawnShepherd();
         SpawnSheep(sheepCount);
+
+        if (cloudManager != null)
+        {
+            cloudManager.ClearAllClouds();
+        }
 
         // Create runtime debug visuals
         if (showDebugGizmos && Application.isPlaying)
@@ -808,9 +823,14 @@ public class GameManager : MonoBehaviour
             Debug.Log($"Stats - Alive: {aliveSheep}, In Corral: {sheepActuallyInCorral}, Lost: {lostSheep}");
             
             isLevelTransitioning = true;
-            currentLevel++;
-            Invoke(nameof(StartLevel), levelTransitionDelay);
+            Invoke(nameof(AdvanceLevel), levelTransitionDelay);
         }
+    }
+
+    private void AdvanceLevel()
+    {
+        currentLevel++;
+        StartLevel();
     }
 
     void UpdateUI()
@@ -824,6 +844,23 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogWarning("UpdateUI called but uiText is null! Please assign the UI Text component in the inspector.");
+        }
+    }
+
+    public void SpawnClouds()
+    {
+        if (cloudManager != null)
+        {
+            cloudManager.SetCloudSpawning(true);
+            Debug.Log("Cloud spawning enabled");
+        }
+    }
+
+    public void UpdateCloudPositions()
+    {
+        if (cloudManager != null)
+        {
+            Debug.Log($"Active clouds: {cloudManager.GetActiveCloudCount()}");
         }
     }
 
@@ -865,18 +902,6 @@ public class GameManager : MonoBehaviour
             bool testResult = IsPositionInCorral(testPositions[i]);
             Debug.Log($"Test position {i}: {testPositions[i]} -> {testResult}");
         }
-    }
-
-    public void SpawnClouds()
-    {
-        // Placeholder for cloud spawning
-        Debug.Log("Cloud spawning - placeholder");
-    }
-
-    public void UpdateCloudPositions()
-    {
-        // Placeholder for cloud movement
-        Debug.Log("Cloud update - placeholder");
     }
 
     void OnDrawGizmos()

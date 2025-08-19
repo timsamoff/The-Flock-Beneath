@@ -69,6 +69,8 @@
     "dotnet.defaultSolution": "The Flock Beneath.sln",
     "cSpell.words": [
         "Behaviour",
+        "despawn",
+        "Despawned",
         "Lerp",
         "Mathf",
         "pathfinding",

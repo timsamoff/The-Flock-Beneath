@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class SheepBehavior : MonoBehaviour
@@ -31,7 +32,7 @@ public class SheepBehavior : MonoBehaviour
     [SerializeField] private float disengageCheckInterval = 2f;
     [SerializeField] private float disengageChancePerCheck = 0.02f;
     [SerializeField] private float shepherdDisengageDistance = 15f;
-    [SerializeField] private float shepherdStopPadding = 1.5f; // New serialized variable
+    [SerializeField] private float shepherdStopPadding = 1.5f;
 
     [Header("Corral Settings")]
     [SerializeField] private float timeToSettleInCorral = 1.5f;
@@ -72,22 +73,24 @@ public class SheepBehavior : MonoBehaviour
 
     private static readonly Collider2D[] tempColliderArray = new Collider2D[10];
     private static bool showGizmos = false;
-    [HideInInspector] public bool isCorralled = false;
+    [HideInInspector] public bool isCorralled = false;
 
-    private void Awake()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        sheepCollider = GetComponent<Collider2D>();
-        mainCam = Camera.main;
+    private List<CloudBehavior> coveringClouds = new List<CloudBehavior>();
 
-        if (shepherd == null)
-            shepherd = GameObject.FindGameObjectWithTag("Player")?.transform;
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        sheepCollider = GetComponent<Collider2D>();
+        mainCam = Camera.main;
 
-        shepherdFollowDistanceSqr = shepherdFollowDistance * shepherdFollowDistance;
-        sheepCollisionDistanceSqr = sheepCollisionDistance * sheepCollisionDistance;
-        sheepDetectionRadiusSqr = sheepDetectionRadius * sheepDetectionRadius;
-        shepherdDisengageDistanceSqr = shepherdDisengageDistance * shepherdDisengageDistance;
-    }
+        if (shepherd == null)
+            shepherd = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        shepherdFollowDistanceSqr = shepherdFollowDistance * shepherdFollowDistance;
+        sheepCollisionDistanceSqr = sheepCollisionDistance * sheepCollisionDistance;
+        sheepDetectionRadiusSqr = sheepDetectionRadius * sheepDetectionRadius;
+        shepherdDisengageDistanceSqr = shepherdDisengageDistance * shepherdDisengageDistance;
+    }
 
     private void Start()
     {
@@ -169,7 +172,7 @@ public class SheepBehavior : MonoBehaviour
                 Debug.Log("Sheep is fully inside the corral. Counted!");
             }
         }
-        // If sheep leaves corral
+        // If sheep leaves
         else if (!isCurrentlyInCorral && isCorralled)
         {
             isCorralled = false;
@@ -601,28 +604,55 @@ public class SheepBehavior : MonoBehaviour
         return false;
     }
 
-    private void HandleSheepCollision()
-    {
-        rb.linearVelocity = Vector2.zero;
-        rb.angularVelocity = 0f;
+    private void HandleSheepCollision()
+    {
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
 
-        EnterGrazingState();
-        stateTimer = Random.Range(maxGrazingTime, maxGrazingTime * 1.5f);
-    }
+        EnterGrazingState();
+        stateTimer = Random.Range(maxGrazingTime, maxGrazingTime * 1.5f);
+    }
 
-    private void CheckScreenBounds()
-    {
-        Vector3 viewportPoint = mainCam.WorldToViewportPoint(transform.position);
+    public void AddCloudCoverage(CloudBehavior cloud) {
+        if (!coveringClouds.Contains(cloud)) coveringClouds.Add(cloud);
+    }
 
-        if (viewportPoint.x < -0.1f || viewportPoint.x > 1.1f || viewportPoint.y < -0.1f || viewportPoint.y > 1.1f)
-        {
-            if (gameManager != null)
-            {
-                gameManager.SheepLost(this);
-            }
-            Destroy(gameObject);
-        }
-    }
+    public void RemoveCloudCoverage(CloudBehavior cloud) {
+        coveringClouds.Remove(cloud);
+    }
+
+    public int GetCloudCoverageCount() {
+        return coveringClouds.Count;
+    }
+
+    public bool IsUnderCloudCover()
+    {
+        return GetCloudCoverageCount() > 0;
+    }
+
+    public bool IsFollowingShepherd()
+    {
+        return true;
+    }
+
+    public void DisengageFromShepherd()
+    {
+        Debug.Log("Sheep disengaged from shepherd due to cloud cover!");
+    }
+
+    private void CheckScreenBounds()
+    {
+        Vector3 viewportPoint = mainCam.WorldToViewportPoint(transform.position);
+
+        if (viewportPoint.x < -0.1f || viewportPoint.x > 1.1f || viewportPoint.y < -0.1f || viewportPoint.y > 1.1f)
+        {
+            if (gameManager != null)
+            {
+                gameManager.SheepLost(this);
+            }
+            Destroy(gameObject);
+        }
+    }
 
     private void OnDrawGizmos()
     {
