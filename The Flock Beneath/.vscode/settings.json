@@ -74,7 +74,9 @@
         "Lerp",
         "Mathf",
         "pathfinding",
+        "Prefs",
         "Rigidbody",
-        "TELEPORTING"
+        "TELEPORTING",
+        "UGUI"
     ]
 }

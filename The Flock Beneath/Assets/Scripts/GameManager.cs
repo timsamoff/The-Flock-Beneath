@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 using System.Reflection;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -80,6 +81,7 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("No CloudManager found in scene!");
         }
 
+        currentLevel = GetNextLevel();
         StartLevel();
     }
 
@@ -804,41 +806,64 @@ public class GameManager : MonoBehaviour
         CheckLevelComplete();
     }
 
-    void CheckLevelComplete()
-    {
-        if (isLevelTransitioning) return;
+void CheckLevelComplete()
+{
+    if (isLevelTransitioning) return;
 
-        // Count sheep inside the corral
-        int sheepActuallyInCorral = 0;
-        int aliveSheep = 0;
+    // Count sheep inside the corral
+    int sheepActuallyInCorral = 0;
+    int aliveSheep = 0;
+    
+    foreach (var sheep in spawnedSheep)
+    {
+        if (sheep == null) continue; // Skip lost sheep
         
-        foreach (var sheep in spawnedSheep)
-        {
-            if (sheep == null) continue; // Skip lost sheep
-            
-            aliveSheep++;
-            
-            if (IsPositionInCorral(sheep.transform.position))
-            {
-                sheepActuallyInCorral++;
-            }
-        }
+        aliveSheep++;
         
-        if (aliveSheep > 0 && sheepActuallyInCorral >= aliveSheep)
+        if (IsPositionInCorral(sheep.transform.position))
         {
-            Debug.Log($"Level {currentLevel} complete! All {aliveSheep} sheep are physically inside the corral.");
-            Debug.Log($"Stats - Alive: {aliveSheep}, In Corral: {sheepActuallyInCorral}, Lost: {lostSheep}");
-            
-            isLevelTransitioning = true;
-            Invoke(nameof(AdvanceLevel), levelTransitionDelay);
+            sheepActuallyInCorral++;
         }
     }
-
-    private void AdvanceLevel()
+    
+    // Level is complete when ALL remaining sheep are in corral
+    if (aliveSheep > 0 && sheepActuallyInCorral >= aliveSheep)
     {
-        currentLevel++;
-        StartLevel();
+        Debug.Log($"Level {currentLevel} complete! All {aliveSheep} remaining sheep are physically inside the corral.");
+        Debug.Log($"Stats - Starting sheep: {startingSheep}, Alive: {aliveSheep}, In Corral: {sheepActuallyInCorral}, Lost: {lostSheep}");
+        
+        isLevelTransitioning = true;
+        
+        float stars = CalculateStars(sheepActuallyInCorral, startingSheep);
+        
+        Debug.Log($"Final Score: {stars:F1} stars (Corralled: {sheepActuallyInCorral}/{startingSheep}, Lost: {lostSheep})");
+        
+        SaveLevelScore(currentLevel, stars);
+        SaveNextLevel(currentLevel + 1);
+        Invoke(nameof(LoadScoreScene), levelTransitionDelay);
     }
+}
+    private void LoadScoreScene()
+    {
+        SceneManager.LoadScene("Score");
+    }
+
+    void SaveNextLevel(int level)
+    {
+        PlayerPrefs.SetInt("NextLevel", level);
+        PlayerPrefs.Save();
+    }
+
+    int GetNextLevel()
+    {
+        return PlayerPrefs.GetInt("NextLevel", 1); // Default to level 1 if not set
+    }
+
+    // private void AdvanceLevel()
+    // {
+    //     currentLevel++;
+    //     StartLevel();
+    // }
 
     void UpdateUI()
     {
@@ -869,6 +894,33 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log($"Active clouds: {cloudManager.GetActiveCloudCount()}");
         }
+    }
+
+    float CalculateStars(int corralledSheep, int totalStartingSheep)
+    {
+        float percentage = ((float)corralledSheep / totalStartingSheep) * 100f;
+        
+        Debug.Log($"Star calculation: corralled={corralledSheep}, starting={totalStartingSheep}, percentage={percentage:F2}%");
+        
+        // Star thresholds
+        if (percentage >= 100f) return 3f;      // Perfect score
+        else if (percentage >= 90f) return 2.5f; // 90-99%
+        else if (percentage >= 80f) return 2f;   // 80-89%  
+        else if (percentage >= 70f) return 1.5f; // 70-79%
+        else if (percentage >= 60f) return 1f;   // 60-69%
+        else if (percentage >= 50f) return 0.5f; // 50-59% 
+        else return 0f;                          // Less than 50%
+    }
+
+    void SaveLevelScore(int level, float stars)
+    {
+        PlayerPrefs.SetFloat($"Level{level}Stars", stars);
+        PlayerPrefs.Save();
+    }
+
+    float GetLevelScore(int level)
+    {
+        return PlayerPrefs.GetFloat($"Level{level}Stars", 0f);
     }
 
     public int GetCorralledSheepCount() => corralledSheep;
