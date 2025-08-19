@@ -762,11 +762,21 @@ public class GameManager : MonoBehaviour
     public void SheepLost(SheepBehavior sheep)
     {
         lostSheep++;
-        totalSheep--;
-        Debug.Log($"SheepLost called: lostSheep={lostSheep}, totalSheep={totalSheep}");
+        totalSheep--; // Decrease total count
+        
+        if (sheep.isCorralled)
+        {
+            corralledSheep--;
+        }
+        
+        Debug.Log($"SheepLost called: lostSheep={lostSheep}, totalSheep={totalSheep}, corralledSheep={corralledSheep}");
 
         if (spawnedSheep.Contains(sheep.gameObject))
+        {
             spawnedSheep.Remove(sheep.gameObject);
+        }
+        
+        Destroy(sheep.gameObject);
 
         UpdateUI();
         CheckLevelComplete();
@@ -776,28 +786,30 @@ public class GameManager : MonoBehaviour
     {
         if (isLevelTransitioning) return;
 
-        if (corralledSheep + lostSheep >= totalSheep)
+        // Count sheep inside the corral
+        int sheepActuallyInCorral = 0;
+        int aliveSheep = 0;
+        
+        foreach (var sheep in spawnedSheep)
         {
-            Debug.Log("All sheep are accounted for. Checking for full corral...");
-
-            bool allCorralledSheepAreInCorral = true;
-            foreach (var sheep in spawnedSheep)
+            if (sheep == null) continue; // Skip lost sheep
+            
+            aliveSheep++;
+            
+            if (IsPositionInCorral(sheep.transform.position))
             {
-                SheepBehavior sb = sheep.GetComponent<SheepBehavior>();
-                if (sb != null && sb.isCorralled && !IsPositionInCorral(sheep.transform.position))
-                {
-                    allCorralledSheepAreInCorral = false;
-                    break;
-                }
+                sheepActuallyInCorral++;
             }
-
-            if (allCorralledSheepAreInCorral)
-            {
-                Debug.Log($"Level {currentLevel} complete! All sheep accounted for and inside the corral.");
-                isLevelTransitioning = true;
-                currentLevel++;
-                Invoke(nameof(StartLevel), levelTransitionDelay);
-            }
+        }
+        
+        if (aliveSheep > 0 && sheepActuallyInCorral >= aliveSheep)
+        {
+            Debug.Log($"Level {currentLevel} complete! All {aliveSheep} sheep are physically inside the corral.");
+            Debug.Log($"Stats - Alive: {aliveSheep}, In Corral: {sheepActuallyInCorral}, Lost: {lostSheep}");
+            
+            isLevelTransitioning = true;
+            currentLevel++;
+            Invoke(nameof(StartLevel), levelTransitionDelay);
         }
     }
 
