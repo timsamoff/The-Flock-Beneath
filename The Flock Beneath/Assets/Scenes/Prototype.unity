@@ -554,9 +554,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CloudManager
   cloudPrefabs:
   - {fileID: 8007642408582116104, guid: dd2586fca2fe23b459b187a549f3f766, type: 3}
+  - {fileID: 8007642408582116104, guid: 7f32810b66e976940a7d8a2a6ebbf991, type: 3}
+  - {fileID: 8007642408582116104, guid: 5b11b374592edfd42aa0dba55498f762, type: 3}
+  - {fileID: 8007642408582116104, guid: a58076f873e488a4198acd864edea3c8, type: 3}
+  - {fileID: 8007642408582116104, guid: 599c6292c4869e647bd9ca61cd0695fa, type: 3}
+  - {fileID: 8007642408582116104, guid: 063733df328df2547bfa5a4b849b38bd, type: 3}
+  - {fileID: 8007642408582116104, guid: 7692ac507fcc1b246b192d4042951de3, type: 3}
   spawnInterval: 8
   spawnIntervalVariation: 3
-  spawnBuffer: 2
+  spawnBuffer: 6
   maxCloudsOnScreen: 5
   enableCloudSpawning: 1
   difficultyScaling: 0.1

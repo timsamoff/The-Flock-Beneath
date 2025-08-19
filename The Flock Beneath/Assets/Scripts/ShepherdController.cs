@@ -39,6 +39,7 @@ public class ShepherdController : MonoBehaviour
         Vector2 shepherdScreenPos = cam.WorldToScreenPoint(transform.position);
 
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined;
 
         Mouse.current.WarpCursorPosition(shepherdScreenPos);
     }

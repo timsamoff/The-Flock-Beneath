@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4672119872548795512}
@@ -79,7 +79,7 @@ SpriteRenderer:
   m_SortingLayerID: -250025629
   m_SortingLayer: 6
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: -8359150766993440227, guid: 9c2b5edc26345a1438bb7b4bcd29cfc1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.39607844}
   m_FlipX: 0
   m_FlipY: 0
@@ -100,10 +100,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4672119872548795512}
   - component: {fileID: 5697467640587466097}
-  - component: {fileID: 2174668379481276220}
   - component: {fileID: 1996284027658107146}
+  - component: {fileID: 8638481927244565413}
   m_Layer: 0
-  m_Name: Cloud
+  m_Name: Cloud05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,8 +152,25 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!58 &2174668379481276220
-CircleCollider2D:
+--- !u!114 &1996284027658107146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8007642408582116104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba635550703a6f344b7e3b9599feb23a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudBehavior
+  moveSpeed: 1
+  speedVariation: 0.25
+  disengagementChancePerCloud: 0.15
+  checkInterval: 0.1
+  despawnBuffer: 6
+--- !u!70 &8638481927244565413
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -186,22 +203,6 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
---- !u!114 &1996284027658107146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8007642408582116104}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba635550703a6f344b7e3b9599feb23a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CloudBehavior
-  moveSpeed: 1
-  speedVariation: 0.25
-  disengagementChancePerCloud: 0.02
-  checkInterval: 0.1
-  despawnBuffer: 2
+  m_Offset: {x: -0.014548191, y: -0.05720109}
+  m_Size: {x: 1.5708566, y: 0.7717001}
+  m_Direction: 1
