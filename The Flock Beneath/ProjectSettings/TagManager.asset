@@ -10,6 +10,7 @@ TagManager:
   - corral
   - fence
   - gate
+  - grass
   layers:
   - Default
   - TransparentFX
@@ -23,7 +24,7 @@ TagManager:
   - Corral
   - Fence
   - Gate
-  - 
+  - Grass
   - 
   - 
   - 
@@ -46,6 +47,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: grass
+    uniqueID: 130761495
     locked: 0
   - name: corral
     uniqueID: 2336636173

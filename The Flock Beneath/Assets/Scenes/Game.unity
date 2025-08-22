@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000037b89bdd9faadd863e918f10d3d468b61c224c27982eda6
+  m_ApplyToSortingLayers: 000000001743cb070d3d468b61c224c27982eda6d9faadd8037b89bd63e918f1
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -487,6 +487,7 @@ GameObject:
   - component: {fileID: 918588600}
   - component: {fileID: 918588599}
   - component: {fileID: 918588601}
+  - component: {fileID: 918588602}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -563,10 +564,39 @@ MonoBehaviour:
   spawnInterval: 8
   spawnIntervalVariation: 3
   spawnBuffer: 6
-  maxCloudsOnScreen: 5
   enableCloudSpawning: 1
   difficultyScaling: 0.1
-  minLevel: 3
+  minLevel: 1
+  cloudScalingFactor: 1.4
+--- !u!114 &918588602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918588598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6b018c76056d1e47b24e5054aba5516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GrassSpawner
+  prefabs:
+  - {fileID: 3869756775801898491, guid: 906f68df5a06a304d8a5aca208304ad3, type: 3}
+  - {fileID: 5042727289594544509, guid: 6cefbd13b33cee44da7949ea1f6e220b, type: 3}
+  - {fileID: 1367648163940472725, guid: 26fbc576465b13b47aa445cd7242971f, type: 3}
+  - {fileID: 8256141875846402503, guid: 260cb9b93ed12684cb4de13b70e16690, type: 3}
+  - {fileID: 4233998579246537058, guid: 9e56f48a677935b4c82a47f2bea35839, type: 3}
+  - {fileID: 2062673762077053587, guid: bdd87f64b93cdf14b8c26904fb948186, type: 3}
+  - {fileID: 3628090350173386095, guid: b4a19c124f26cbd419a979cb659fdd47, type: 3}
+  - {fileID: 411909403433384632, guid: e94d9015c3f973d41bca499d8ca6abe7, type: 3}
+  - {fileID: 5371396472575326989, guid: 05249f85ac3344b4cbcbf57f078df539, type: 3}
+  spawnCountRange: {x: 25, y: 75}
+  spawnOnStart: 1
+  guaranteeAllPrefabs: 1
+  screenMarginPercent: 0
+  randomScale: 1
+  scaleRange: {x: 0.05, y: 0.09}
+  parentTransform: {fileID: 0}
 --- !u!1 &1268467025
 GameObject:
   m_ObjectHideFlags: 0

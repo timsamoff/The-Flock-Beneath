@@ -9,21 +9,22 @@ public class CloudManager : MonoBehaviour
     [Header("Spawning Settings")]
     [SerializeField] private float spawnInterval = 8f; // Time between cloud spawns
     [SerializeField] private float spawnIntervalVariation = 3f; // Random timing
-    [SerializeField] private float spawnBuffer = 2f; // Spawn cloud buffer
+    [SerializeField] private float spawnBuffer = 6f; // Spawn cloud buffer
     
     [Header("Cloud Settings")]
-    [SerializeField] private int maxCloudsOnScreen = 5;
     [SerializeField] private bool enableCloudSpawning = true;
     
     [Header("Level Scaling")]
-    [SerializeField] private float difficultyScaling = 0.1f; // Spawn rate increase per new level
-    [SerializeField] private int minLevel = 3; // Don't spawn clouds until this level
+    [SerializeField] private float difficultyScaling = 0.1f;
+    [SerializeField] private int minLevel = 1; // When to begin spawning clouds
+    [SerializeField] private float cloudScalingFactor = 1.4f;
     
     private float nextSpawnTime;
     private float screenLeftEdge;
     private float screenTop, screenBottom;
     private List<CloudBehavior> activeClouds = new List<CloudBehavior>();
     private GameManager gameManager;
+    private int targetCloudCount = 0;
     
     void Start()
     {
@@ -31,10 +32,14 @@ public class CloudManager : MonoBehaviour
         
         CalculateScreenBounds();
         
+        // Calculate target cloud count for current level
+        UpdateTargetCloudCount();
+        
         // Set initial spawn time
         ScheduleNextSpawn();
         
         Debug.Log($"CloudManager initialized. Spawn area: Left={screenLeftEdge:F2}, Top={screenTop:F2}, Bottom={screenBottom:F2}");
+        Debug.Log($"Target clouds for level {(gameManager != null ? gameManager.GetCurrentLevel() : 1)}: {targetCloudCount}");
     }
     
     void Update()
@@ -73,13 +78,36 @@ public class CloudManager : MonoBehaviour
         }
     }
     
+    void UpdateTargetCloudCount()
+    {
+        if (gameManager != null)
+        {
+            int currentLevel = gameManager.GetCurrentLevel();
+            
+            // Don't spawn clouds before minLevel
+            if (currentLevel < minLevel)
+            {
+                targetCloudCount = 0;
+                return;
+            }
+            
+            targetCloudCount = Mathf.RoundToInt(1 + (currentLevel - 1) * cloudScalingFactor);
+            
+            Debug.Log($"Level {currentLevel}: Target cloud count = {targetCloudCount}");
+        }
+        else
+        {
+            targetCloudCount = 1; // Default for level 1
+        }
+    }
+    
     bool ShouldSpawnCloud()
     {
-        // Don't spawn if too many clouds
-        if (activeClouds.Count >= maxCloudsOnScreen) return false;
+        // Update target count when level changes
+        UpdateTargetCloudCount();
         
-        // Don't spawn clouds on early levels
-        if (gameManager != null && gameManager.GetCurrentLevel() < minLevel) return false;
+        // Don't spawn if on target
+        if (activeClouds.Count >= targetCloudCount) return false;
         
         return true;
     }
@@ -95,7 +123,7 @@ public class CloudManager : MonoBehaviour
         // Choose random cloud prefab
         GameObject cloudPrefab = cloudPrefabs[Random.Range(0, cloudPrefabs.Length)];
         
-        // Random Y position within screen bounds
+        // Random Y position
         float yPosition = Random.Range(screenBottom, screenTop);
         Vector3 spawnPosition = new Vector3(screenLeftEdge, yPosition, 0f);
         
@@ -106,7 +134,7 @@ public class CloudManager : MonoBehaviour
         if (cloudBehavior != null)
         {
             activeClouds.Add(cloudBehavior);
-            Debug.Log($"Cloud spawned at {spawnPosition}. Active clouds: {activeClouds.Count}");
+            Debug.Log($"Cloud spawned at {spawnPosition}. Active clouds: {activeClouds.Count}/{targetCloudCount}");
         }
         else
         {
@@ -129,11 +157,11 @@ public class CloudManager : MonoBehaviour
         
         // Add random variation
         float variation = Random.Range(-spawnIntervalVariation, spawnIntervalVariation);
-        float actualInterval = Mathf.Max(1f, baseInterval + variation); // Minimum 1 second
+        float actualInterval = Mathf.Max(1f, baseInterval + variation); // Min 1 sec
         
         nextSpawnTime = Time.time + actualInterval;
         
-        Debug.Log($"Next cloud spawn in {actualInterval:F1} seconds");
+        Debug.Log($"Next cloud spawn in {actualInterval:F1} seconds (if under target)");
     }
     
     public void OnCloudDespawned(CloudBehavior cloud)
@@ -141,7 +169,13 @@ public class CloudManager : MonoBehaviour
         if (activeClouds.Contains(cloud))
         {
             activeClouds.Remove(cloud);
-            Debug.Log($"Cloud removed from active list. Active clouds: {activeClouds.Count}");
+            Debug.Log($"Cloud removed from active list. Active clouds: {activeClouds.Count}/{targetCloudCount}");
+            
+            // Schedule next spawn sooner if target
+            if (activeClouds.Count < targetCloudCount)
+            {
+                ScheduleNextSpawn();
+            }
         }
     }
     
@@ -161,12 +195,24 @@ public class CloudManager : MonoBehaviour
     public void SetCloudSpawning(bool enabled)
     {
         enableCloudSpawning = enabled;
-        Debug.Log($"Cloud spawning {(enabled ? "enabled" : "disabled")}");
+        
+        if (enabled)
+        {
+            // Recalculate target
+            UpdateTargetCloudCount();
+        }
+        
+        Debug.Log($"Cloud spawning {(enabled ? "enabled" : "disabled")} - Target: {targetCloudCount}");
     }
     
     public int GetActiveCloudCount()
     {
         return activeClouds.Count;
+    }
+    
+    public int GetTargetCloudCount()
+    {
+        return targetCloudCount;
     }
     
     [ContextMenu("Spawn Cloud Now")]
@@ -178,7 +224,7 @@ public class CloudManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Cannot spawn cloud - conditions not met");
+            Debug.Log($"Cannot spawn cloud - at target ({activeClouds.Count}/{targetCloudCount})");
         }
     }
     
@@ -186,5 +232,12 @@ public class CloudManager : MonoBehaviour
     public void ClearAllCloudsMenuItem()
     {
         ClearAllClouds();
+    }
+    
+    [ContextMenu("Update Target Count")]
+    public void UpdateTargetCountMenuItem()
+    {
+        UpdateTargetCloudCount();
+        Debug.Log($"Target cloud count updated to: {targetCloudCount}");
     }
 }
