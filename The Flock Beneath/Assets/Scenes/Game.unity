@@ -357,7 +357,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &752184104
 RectTransform:
   m_ObjectHideFlags: 0
@@ -522,7 +522,7 @@ MonoBehaviour:
   corralAvoidanceRadius: 0.5
   testMode: 0
   testLevelAmount: 5
-  showDebugGizmos: 1
+  showDebugGizmos: 0
   showCorralBounds: 1
   showScreenBounds: 1
   showAvoidanceBounds: 1

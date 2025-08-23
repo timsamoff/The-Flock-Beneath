@@ -20,9 +20,18 @@ public class Interactions : MonoBehaviour
     {
         SceneManager.LoadScene("Credits");
     }
-    
+
     public void Menu()
     {
         SceneManager.LoadScene("MainMenu");
+    }
+    
+    public void RestartMusic()
+    {
+       AudioFader audioFader = FindFirstObjectByType<AudioFader>();
+        if (audioFader != null)
+        {
+            audioFader.RestartAndFadeIn();
+        }
     }
 }

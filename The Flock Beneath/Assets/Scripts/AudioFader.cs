@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 public class AudioFader : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField] private float fadeTime = 2.0f;
+    [SerializeField] private float fadeInTime = 2.0f;
+    [SerializeField] private float fadeOutTime = 0.5f;
     [SerializeField] private float targetVolume = 1.0f;
     [SerializeField] private bool fadeInOnStart = true;
     
@@ -17,6 +18,7 @@ public class AudioFader : MonoBehaviour
     
     void Awake()
     {
+        // Singleton pattern to prevent duplicate audio managers
         if (instance != null && instance != this)
         {
             Destroy(gameObject);
@@ -60,6 +62,7 @@ public class AudioFader : MonoBehaviour
     
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Do something when a new scene loads
         Debug.Log($"Scene {scene.name} loaded. Music continuing...");
     }
 
@@ -70,10 +73,10 @@ public class AudioFader : MonoBehaviour
         float currentTime = 0f;
         float startVolume = backgroundMusic.volume;
 
-        while (currentTime < fadeTime)
+        while (currentTime < fadeInTime)
         {
             currentTime += Time.deltaTime;
-            backgroundMusic.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / fadeTime);
+            backgroundMusic.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / fadeInTime);
             yield return null;
         }
 
@@ -87,10 +90,10 @@ public class AudioFader : MonoBehaviour
         float currentTime = 0f;
         float startVolume = backgroundMusic.volume;
 
-        while (currentTime < fadeTime)
+        while (currentTime < fadeOutTime)
         {
             currentTime += Time.deltaTime;
-            backgroundMusic.volume = Mathf.Lerp(startVolume, 0f, currentTime / fadeTime);
+            backgroundMusic.volume = Mathf.Lerp(startVolume, 0f, currentTime / fadeInTime);
             yield return null;
         }
 
@@ -107,6 +110,28 @@ public class AudioFader : MonoBehaviour
     {
         StopAllCoroutines();
         StartCoroutine(FadeOutMusic());
+    }
+    
+    public void StopMusicImmediately()
+    {
+        StopAllCoroutines();
+        if (backgroundMusic != null)
+        {
+            backgroundMusic.Stop();
+            backgroundMusic.volume = 0f;
+        }
+    }
+    
+    public void RestartAndFadeIn()
+    {
+        StopAllCoroutines();
+        if (backgroundMusic != null)
+        {
+            backgroundMusic.Stop();
+            backgroundMusic.volume = 0f;
+            backgroundMusic.Play();
+            StartCoroutine(FadeInMusic());
+        }
     }
     
     public void SetVolume(float volume)
@@ -132,16 +157,17 @@ public class AudioFader : MonoBehaviour
         float currentTime = 0f;
         float startVolume = backgroundMusic.volume;
 
-        while (currentTime < fadeTime)
+        while (currentTime < fadeInTime)
         {
             currentTime += Time.deltaTime;
-            backgroundMusic.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / fadeTime);
+            backgroundMusic.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / fadeInTime);
             yield return null;
         }
 
         backgroundMusic.volume = targetVolume;
     }
     
+    // Method to stop music and destroy this object
     public void StopAndDestroy()
     {
         StartCoroutine(FadeOutAndDestroy());

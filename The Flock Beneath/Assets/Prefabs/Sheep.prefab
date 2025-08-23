@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7450222602658799130}
   - component: {fileID: 759106493929593207}
   - component: {fileID: 6230089613137333540}
+  - component: {fileID: 2556033092309695578}
   m_Layer: 0
   m_Name: Sheep
   m_TagString: Untagged
@@ -117,7 +118,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -180,6 +181,7 @@ MonoBehaviour:
   disengageCheckInterval: 2.5
   disengageChancePerCheck: 0.15
   shepherdDisengageDistance: 5
+  shepherdStopPadding: 1.5
   timeToSettleInCorral: 0.1
   sheepDetectionRadius: 1.2
   sheepCollisionDistance: 1.8
@@ -187,6 +189,30 @@ MonoBehaviour:
   shepherd: {fileID: 4412252298984751870, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
   corralZone: {fileID: 6353545762304505084, guid: 7ffda15fb2e26fb4ebd70b70da44ba71, type: 3}
   isCorralled: 0
+--- !u!114 &2556033092309695578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2766559228764536897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45b20ddf0a8cfac41a593d7383a82981, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SheepBleats
+  bleatSounds:
+  - {fileID: 8300000, guid: 80ad3f17363c8d345ac3278549dcc6b0, type: 3}
+  - {fileID: 8300000, guid: d69a81c391138ca448587556ac990967, type: 3}
+  - {fileID: 8300000, guid: 5b3a3d7ea362cf542aaf2937da547b65, type: 3}
+  - {fileID: 8300000, guid: ecd3d59466b6a3044ae6d840a5bf3fb9, type: 3}
+  - {fileID: 8300000, guid: efe8af47665410544b06459eb404047e, type: 3}
+  - {fileID: 8300000, guid: 5844007f9b31bf14bad580113c04aa21, type: 3}
+  - {fileID: 8300000, guid: 9a1d640ae39b24547a7d5ab02aff7ac7, type: 3}
+  - {fileID: 8300000, guid: 09b68931940805e4b8b8748d597561f0, type: 3}
+  timeBetweenBleatsRange: {x: 2, y: 8}
+  volume: 2
+  pitchRange: {x: 0.8, y: 1.2}
 --- !u!1 &7510034431589395159
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,7 +290,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
@@ -355,7 +381,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -659686695
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: -8636221404721523813, guid: cc29ba887026e874ca4f058069f0bb03, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
