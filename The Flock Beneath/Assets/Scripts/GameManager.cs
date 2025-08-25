@@ -876,7 +876,10 @@ public class GameManager : MonoBehaviour
     {
         if (uiText != null)
         {
-            string newText = $"Level: {currentLevel}\nCorralled: {corralledSheep}/{startingSheep}\nLost: {lostSheep}";
+            // string newText = $"Level: {currentLevel}\nCorralled: {corralledSheep}/{startingSheep}\nLost: {lostSheep}";
+
+            string newText = $"{corralledSheep} / {startingSheep}";
+
             uiText.text = newText;
             Debug.Log($"UI Updated: {newText.Replace("\n", " | ")}");
         }
