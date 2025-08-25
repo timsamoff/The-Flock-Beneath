@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8ce04cccac197be4380a004263795902
+guid: 69e17e4d8186f484a8c6bc03b81edb91
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Poems & Pens Bold Italic
+  - K26AlphaCasual
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

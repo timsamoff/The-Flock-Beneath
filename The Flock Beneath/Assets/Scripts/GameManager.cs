@@ -806,41 +806,48 @@ public class GameManager : MonoBehaviour
         CheckLevelComplete();
     }
 
-void CheckLevelComplete()
-{
-    if (isLevelTransitioning) return;
+    void CheckLevelComplete()
+    {
+        if (isLevelTransitioning) return;
 
-    // Count sheep inside the corral
-    int sheepActuallyInCorral = 0;
-    int aliveSheep = 0;
-    
-    foreach (var sheep in spawnedSheep)
-    {
-        if (sheep == null) continue; // Skip lost sheep
-        
-        aliveSheep++;
-        
-        if (IsPositionInCorral(sheep.transform.position))
+        // Count sheep inside the corral
+        int sheepActuallyInCorral = 0;
+        int aliveSheep = 0;
+
+        foreach (var sheep in spawnedSheep)
         {
-            sheepActuallyInCorral++;
+            if (sheep == null) continue; // Skip lost sheep
+
+            aliveSheep++;
+
+            if (IsPositionInCorral(sheep.transform.position))
+            {
+                sheepActuallyInCorral++;
+            }
         }
-    }
+
+        // Level is complete when ALL remaining sheep are in corral
+        if (aliveSheep > 0 && sheepActuallyInCorral >= aliveSheep)
+        {
+            Debug.Log($"Level {currentLevel} complete! All {aliveSheep} remaining sheep are physically inside the corral.");
+            Debug.Log($"Stats - Starting sheep: {startingSheep}, Alive: {aliveSheep}, In Corral: {sheepActuallyInCorral}, Lost: {lostSheep}");
+
+            isLevelTransitioning = true;
+
+            float stars = CalculateStars(sheepActuallyInCorral, startingSheep);
+
+            Debug.Log($"Final Score: {stars:F1} stars (Corralled: {sheepActuallyInCorral}/{startingSheep}, Lost: {lostSheep})");
+
+            SaveLevelScore(currentLevel, stars);
+            SaveLevelLostSheep(currentLevel, lostSheep);
+            SaveNextLevel(currentLevel + 1);
+            Invoke(nameof(LoadScoreScene), levelTransitionDelay);
+        }
     
-    // Level is complete when ALL remaining sheep are in corral
-    if (aliveSheep > 0 && sheepActuallyInCorral >= aliveSheep)
+    void SaveLevelLostSheep(int level, int lostCount)
     {
-        Debug.Log($"Level {currentLevel} complete! All {aliveSheep} remaining sheep are physically inside the corral.");
-        Debug.Log($"Stats - Starting sheep: {startingSheep}, Alive: {aliveSheep}, In Corral: {sheepActuallyInCorral}, Lost: {lostSheep}");
-        
-        isLevelTransitioning = true;
-        
-        float stars = CalculateStars(sheepActuallyInCorral, startingSheep);
-        
-        Debug.Log($"Final Score: {stars:F1} stars (Corralled: {sheepActuallyInCorral}/{startingSheep}, Lost: {lostSheep})");
-        
-        SaveLevelScore(currentLevel, stars);
-        SaveNextLevel(currentLevel + 1);
-        Invoke(nameof(LoadScoreScene), levelTransitionDelay);
+        PlayerPrefs.SetInt($"Level{level}Lost", lostCount);
+        PlayerPrefs.Save();
     }
 }
     private void LoadScoreScene()

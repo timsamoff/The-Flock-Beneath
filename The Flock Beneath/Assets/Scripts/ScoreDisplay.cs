@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class ScoreDisplay : MonoBehaviour
 {
@@ -9,21 +10,68 @@ public class ScoreDisplay : MonoBehaviour
     [Header("Star Outline Positions")]
     [SerializeField] private Transform[] starOutlinePositions;
     
+    [Header("Level Display")]
+    [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private TextMeshProUGUI lostSheepText;
+    
     private GameObject[] instantiatedStars = new GameObject[3];
 
     void Start()
     {
         Cursor.visible = true;
-        int previousLevel = PlayerPrefs.GetInt("NextLevel") - 1;
-        float stars = GetLevelScore(previousLevel);
         
-        Debug.Log($"ScoreDisplay: Previous level = {previousLevel}, Stars = {stars}");
+        // Starts at 1 for first time
+        int currentLevel = PlayerPrefs.GetInt("CurrentLevel", 1);
+        
+        float stars = GetLevelScore(currentLevel);
+        
+        Debug.Log($"ScoreDisplay: Current level = {currentLevel}, Stars = {stars}");
         
         Debug.Log($"Whole Star Prefab: {(wholeStarPrefab != null ? wholeStarPrefab.name : "NULL")}");
         Debug.Log($"Half Star Prefab: {(halfStarPrefab != null ? halfStarPrefab.name : "NULL")}");
         Debug.Log($"Star Outline Positions Count: {(starOutlinePositions != null ? starOutlinePositions.Length : 0)}");
         
         DisplayStars(stars);
+        DisplayLevelText(currentLevel);
+        DisplayLostSheepText(currentLevel);
+        
+        // Increment for next time
+        IncrementCurrentLevel();
+    }
+
+    void DisplayLevelText(int level)
+    {
+        if (levelText != null)
+        {
+            levelText.text = $"Level {level}";
+            Debug.Log($"Level text updated to: Level {level}");
+        }
+        else
+        {
+            Debug.LogWarning("Level text component is not assigned!");
+        }
+    }
+    
+    void DisplayLostSheepText(int level)
+    {
+        if (lostSheepText != null)
+        {
+            int lostSheepCount = GetLevelLostSheep(level);
+            lostSheepText.text = $"{lostSheepCount} lost sheep.";
+            Debug.Log($"Lost sheep text updated to: {lostSheepCount} lost sheep.");
+        }
+        else
+        {
+            Debug.LogWarning("Lost sheep text component is not assigned!");
+        }
+    }
+    
+    void IncrementCurrentLevel()
+    {
+        int currentLevel = PlayerPrefs.GetInt("CurrentLevel", 1);
+        PlayerPrefs.SetInt("CurrentLevel", currentLevel + 1);
+        PlayerPrefs.Save();
+        Debug.Log($"Current level incremented to: {currentLevel + 1}");
     }
 
     void DisplayStars(float starScore)
@@ -136,6 +184,11 @@ public class ScoreDisplay : MonoBehaviour
     float GetLevelScore(int level)
     {
         return PlayerPrefs.GetFloat($"Level{level}Stars", 0f);
+    }
+    
+    int GetLevelLostSheep(int level)
+    {
+        return PlayerPrefs.GetInt($"Level{level}Lost", 0);
     }
     
     void OnDestroy()
