@@ -102,7 +102,6 @@ public class CloudBehavior : MonoBehaviour
             // Only affect sheep that are currently following the shepherd
             if (sheep.IsFollowingShepherd())
             {
-                // Calculate disengagement chance based on number of clouds covering this sheep
                 int totalCloudsOnSheep = sheep.GetCloudCoverageCount();
                 float totalDisengagementChance = disengagementChancePerCloud * totalCloudsOnSheep;
                 

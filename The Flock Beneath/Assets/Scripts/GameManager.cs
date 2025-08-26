@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
     private int totalSheep;
     private int corralledSheep = 0;
     private int lostSheep = 0;
+    private int puffedSheepCount = 0;
 
     // Clouds
     private CloudManager cloudManager;
@@ -239,6 +240,7 @@ public class GameManager : MonoBehaviour
         occupiedPositions.Clear();
         corralledSheep = 0;
         lostSheep = 0;
+        puffedSheepCount = 0;
     }
 
     void SpawnCorral()
@@ -786,70 +788,58 @@ public class GameManager : MonoBehaviour
     public void SheepLost(SheepBehavior sheep)
     {
         lostSheep++;
-        totalSheep--; // Decrease total count
-        
-        if (sheep.isCorralled)
-        {
-            corralledSheep--;
-        }
-        
-        Debug.Log($"SheepLost called: lostSheep={lostSheep}, totalSheep={totalSheep}, corralledSheep={corralledSheep}");
+        totalSheep--;
+
+        if (sheep.isCorralled) corralledSheep--;
 
         if (spawnedSheep.Contains(sheep.gameObject))
         {
             spawnedSheep.Remove(sheep.gameObject);
         }
-        
+
         Destroy(sheep.gameObject);
 
+        Debug.Log($"Sheep lost. Corralled={corralledSheep}, Lost={lostSheep}, Total={totalSheep}");
         UpdateUI();
         CheckLevelComplete();
     }
+
+    // public void SheepPuffed(SheepBehavior sheep)
+    // {
+    //     if (spawnedSheep.Contains(sheep.gameObject))
+    //     {
+    //         spawnedSheep.Remove(sheep.gameObject);
+    //     }
+
+    //     Destroy(sheep.gameObject);
+    // }
+
 
     void CheckLevelComplete()
     {
         if (isLevelTransitioning) return;
 
-        // Count sheep inside the corral
-        int sheepActuallyInCorral = 0;
-        int aliveSheep = 0;
-
-        foreach (var sheep in spawnedSheep)
+        if (corralledSheep + lostSheep >= startingSheep)
         {
-            if (sheep == null) continue; // Skip lost sheep
-
-            aliveSheep++;
-
-            if (IsPositionInCorral(sheep.transform.position))
-            {
-                sheepActuallyInCorral++;
-            }
-        }
-
-        // Level is complete when ALL remaining sheep are in corral
-        if (aliveSheep > 0 && sheepActuallyInCorral >= aliveSheep)
-        {
-            Debug.Log($"Level {currentLevel} complete! All {aliveSheep} remaining sheep are physically inside the corral.");
-            Debug.Log($"Stats - Starting sheep: {startingSheep}, Alive: {aliveSheep}, In Corral: {sheepActuallyInCorral}, Lost: {lostSheep}");
+            Debug.Log($"Level {currentLevel} complete! Score: {corralledSheep}/{startingSheep} sheep corralled (lost={lostSheep}).");
 
             isLevelTransitioning = true;
 
-            float stars = CalculateStars(sheepActuallyInCorral, startingSheep);
-
-            Debug.Log($"Final Score: {stars:F1} stars (Corralled: {sheepActuallyInCorral}/{startingSheep}, Lost: {lostSheep})");
+            float stars = CalculateStars(corralledSheep, startingSheep);
 
             SaveLevelScore(currentLevel, stars);
             SaveLevelLostSheep(currentLevel, lostSheep);
             SaveNextLevel(currentLevel + 1);
+
             Invoke(nameof(LoadScoreScene), levelTransitionDelay);
         }
-    
+    }
+
     void SaveLevelLostSheep(int level, int lostCount)
     {
         PlayerPrefs.SetInt($"Level{level}Lost", lostCount);
         PlayerPrefs.Save();
     }
-}
     private void LoadScoreScene()
     {
         SceneManager.LoadScene("Score");
@@ -876,16 +866,9 @@ public class GameManager : MonoBehaviour
     {
         if (uiText != null)
         {
-            // string newText = $"Level: {currentLevel}\nCorralled: {corralledSheep}/{startingSheep}\nLost: {lostSheep}";
-
             string newText = $"{corralledSheep} / {startingSheep}";
-
             uiText.text = newText;
-            Debug.Log($"UI Updated: {newText.Replace("\n", " | ")}");
-        }
-        else
-        {
-            Debug.LogWarning("UpdateUI called but uiText is null! Please assign the UI Text component in the inspector.");
+            Debug.Log($"UI Updated: {newText} (Lost: {lostSheep}, Remaining: {totalSheep})");
         }
     }
 

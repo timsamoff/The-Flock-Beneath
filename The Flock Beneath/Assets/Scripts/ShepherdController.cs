@@ -35,7 +35,7 @@ public class ShepherdController : MonoBehaviour
         spriteHalfSize = spriteRenderer.bounds.extents;
         targetPosition = rb.position;
 
-        // Move mouse to the shepherd's position
+        // Move mouse to shepherd's position
         Vector2 shepherdScreenPos = cam.WorldToScreenPoint(transform.position);
 
         Cursor.visible = false;

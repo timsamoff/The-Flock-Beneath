@@ -60,10 +60,10 @@ public class GrassSpawner : MonoBehaviour
             return;
         }
         
-        // Get random number of objects to spawn within specified range
+        // Get random number of objects
         int numberOfObjectsToSpawn = Random.Range(spawnCountRange.x, spawnCountRange.y + 1);
         
-        // Create list of prefabs to spawn
+        // Create list of prefabs
         List<GameObject> prefabsToSpawn = new List<GameObject>();
         
         if (guaranteeAllPrefabs && prefabs.Length <= numberOfObjectsToSpawn)

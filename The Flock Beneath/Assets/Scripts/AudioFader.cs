@@ -18,7 +18,7 @@ public class AudioFader : MonoBehaviour
     
     void Awake()
     {
-        // Singleton pattern to prevent duplicate audio managers
+        // Singleton
         if (instance != null && instance != this)
         {
             Destroy(gameObject);
@@ -62,7 +62,6 @@ public class AudioFader : MonoBehaviour
     
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Do something when a new scene loads
         Debug.Log($"Scene {scene.name} loaded. Music continuing...");
     }
 
@@ -167,7 +166,7 @@ public class AudioFader : MonoBehaviour
         backgroundMusic.volume = targetVolume;
     }
     
-    // Method to stop music and destroy this object
+    // Stop music and destroy
     public void StopAndDestroy()
     {
         StartCoroutine(FadeOutAndDestroy());

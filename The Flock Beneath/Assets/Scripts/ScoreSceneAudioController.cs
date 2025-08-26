@@ -4,7 +4,7 @@ public class ScoreSceneAudioController : MonoBehaviour
 {
     void Start()
     {
-        // Fade out the music when this scene loads
+        // Fade out music when scene loads
         AudioFader audioFader = FindFirstObjectByType<AudioFader>();
         if (audioFader != null)
         {
