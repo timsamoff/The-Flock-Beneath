@@ -19,6 +19,7 @@ public class SheepBehavior : MonoBehaviour
     [SerializeField] private float wanderMinDistance = 2f;
     [SerializeField] private float wanderMaxDistance = 8f;
     [SerializeField] private float wanderSpeed = 1.2f;
+    [SerializeField] private float offscreenMargin = 10f;
 
     [Header("Grazing Settings")]
     [SerializeField] private float minGrazingTime = 2f;
@@ -596,9 +597,21 @@ public class SheepBehavior : MonoBehaviour
 
     private void CheckScreenBounds()
     {
-        Vector3 viewportPoint = mainCam.WorldToViewportPoint(transform.position);
+        if (mainCam == null) return;
 
-        if (viewportPoint.x < -0.1f || viewportPoint.x > 1.1f || viewportPoint.y < -0.1f || viewportPoint.y > 1.1f)
+        float vertExtent = mainCam.orthographicSize;
+        float horzExtent = vertExtent * mainCam.aspect;
+
+        Vector3 camPos = mainCam.transform.position;
+        float leftBound   = camPos.x - horzExtent;
+        float rightBound  = camPos.x + horzExtent;
+        float bottomBound = camPos.y - vertExtent;
+        float topBound    = camPos.y + vertExtent;
+
+        Vector2 pos = transform.position;
+
+        if (pos.x < leftBound - offscreenMargin || pos.x > rightBound + offscreenMargin ||
+        pos.y < bottomBound - offscreenMargin || pos.y > topBound + offscreenMargin)
         {
             if (gameManager != null)
                 gameManager.SheepLost(this);

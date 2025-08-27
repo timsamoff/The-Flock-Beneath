@@ -149,7 +149,7 @@ Rigidbody2D:
   m_LinearDamping: 5
   m_AngularDamping: 5
   m_GravityScale: 0
-  m_Material: {fileID: 6200000, guid: 34f57660b146c7248acbf4446d998448, type: 2}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -215,6 +215,7 @@ MonoBehaviour:
   wanderMinDistance: 2
   wanderMaxDistance: 8
   wanderSpeed: 1
+  offscreenMargin: 2.5
   minGrazingTime: 1
   maxGrazingTime: 8
   followSpeed: 2.5
@@ -248,7 +249,7 @@ MonoBehaviour:
   minScale: 0.01
   maxScale: 0.5
   maxDistance: 30
-  offscreenDelay: 1
+  offscreenDelay: 0.1
 --- !u!1 &7510034431589395159
 GameObject:
   m_ObjectHideFlags: 0

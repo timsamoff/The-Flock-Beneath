@@ -12,12 +12,14 @@ public class OffscreenIndicator : MonoBehaviour
 
     private Camera mainCam;
     private GameObject arrowInstance;
+    private Collider2D sheepCollider;
 
     private float offscreenTimer = 0f;
 
     void Start()
     {
         mainCam = Camera.main;
+        sheepCollider = GetComponent<Collider2D>();
 
         if (arrowPrefab != null)
         {
@@ -34,7 +36,7 @@ public class OffscreenIndicator : MonoBehaviour
     {
         if (mainCam == null || arrowInstance == null) return;
 
-        bool offscreen = IsPivotOffscreen();
+        bool offscreen = IsColliderOffscreen();
 
         // Update timer
         if (offscreen)
@@ -77,23 +79,45 @@ public class OffscreenIndicator : MonoBehaviour
         Vector3 arrowWorldPos = mainCam.ScreenToWorldPoint(new Vector3(clampedX, clampedY, screenPos.z));
         arrowInstance.transform.position = arrowWorldPos;
 
-        // Rotate arrow toward prefab
+        // Rotate toward sheep
         Vector3 dir = (transform.position - arrowWorldPos).normalized;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         arrowInstance.transform.rotation = Quaternion.Euler(0, 0, angle - 90f);
 
-        // Scale arrow
-        float distance = Vector3.Distance(transform.position, arrowWorldPos);
-        float t = Mathf.Clamp01(distance / maxDistance);
-        float scale = Mathf.Lerp(maxScale, minScale, t);
+        Vector3 viewportPos = mainCam.WorldToViewportPoint(transform.position);
+        float distFromEdgeX = Mathf.Min(Mathf.Abs(viewportPos.x), Mathf.Abs(viewportPos.x - 1));
+        float distFromEdgeY = Mathf.Min(Mathf.Abs(viewportPos.y), Mathf.Abs(viewportPos.y - 1));
+        float distFromEdge = Mathf.Min(distFromEdgeX, distFromEdgeY);
+
+        float t = Mathf.Clamp01(distFromEdge * 2);
+        float scale = Mathf.Lerp(minScale, maxScale, 1 - t);
         arrowInstance.transform.localScale = Vector3.one * scale;
     }
 
-    private bool IsPivotOffscreen()
+    private bool IsColliderOffscreen()
     {
-        Vector3 viewportPos = mainCam.WorldToViewportPoint(transform.position);
-        return viewportPos.x < 0 || viewportPos.x > 1 ||
-               viewportPos.y < 0 || viewportPos.y > 1;
+        if (sheepCollider == null || mainCam == null) return true;
+
+        Bounds bounds = sheepCollider.bounds;
+        Vector3[] corners = new Vector3[4]
+        {
+            new Vector3(bounds.min.x, bounds.min.y),
+            new Vector3(bounds.min.x, bounds.max.y),
+            new Vector3(bounds.max.x, bounds.min.y),
+            new Vector3(bounds.max.x, bounds.max.y)
+        };
+
+        foreach (var corner in corners)
+        {
+            Vector3 viewportPos = mainCam.WorldToViewportPoint(corner);
+            if (viewportPos.x >= 0 && viewportPos.x <= 1 &&
+                viewportPos.y >= 0 && viewportPos.y <= 1)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     void OnDestroy()
