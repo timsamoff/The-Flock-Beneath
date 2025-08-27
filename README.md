@@ -15,7 +15,7 @@ Than shepherding.
 But if I don't work,
 
 We may not eat.
-## Instructions
+## Instructions:
 1. Use the mouse to corral your stubborn sheep.
 2. Don't let them wander out of the meadow.
 3. Cloudy days can be tough.
