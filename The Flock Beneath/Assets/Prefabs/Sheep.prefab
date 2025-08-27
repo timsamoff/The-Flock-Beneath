@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2556033092309695578}
   - component: {fileID: -8502253003422792158}
   - component: {fileID: 7492667063472959867}
+  - component: {fileID: 629085711089311820}
   m_Layer: 7
   m_Name: Sheep
   m_TagString: sheep
@@ -230,6 +231,24 @@ MonoBehaviour:
   shepherd: {fileID: 4412252298984751870, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
   corralZone: {fileID: 6353545762304505084, guid: 7ffda15fb2e26fb4ebd70b70da44ba71, type: 3}
   isCorralled: 0
+--- !u!114 &629085711089311820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2766559228764536897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3acb6b2a83e8abd49adf34da65874416, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OffscreenIndicator
+  arrowPrefab: {fileID: 7022860308532374118, guid: 0004d6d1d0e24bf4c91a73371ef144af, type: 3}
+  edgeBuffer: 30
+  minScale: 0.01
+  maxScale: 0.5
+  maxDistance: 30
+  offscreenDelay: 1
 --- !u!1 &7510034431589395159
 GameObject:
   m_ObjectHideFlags: 0
