@@ -7,9 +7,13 @@ A simple sheepherding game.
 ## Description
 ### Inspired by a dream of the following poem:
 Cloudherding seems
+
 So much more fun
+
 Than shepherding.
+
 But if I don't work,
+
 We may not eat.
 ## Instructions
 1. Ue the mouse to corral your stubborn sheep.
