@@ -4,11 +4,11 @@ public class OffscreenIndicator : MonoBehaviour
 {
     [Header("Arrow Settings")]
     [SerializeField] private GameObject arrowPrefab;
-    [SerializeField] private float edgeBuffer = 30f;    // pixels inside screen edge
+    [SerializeField] private float edgeBuffer = 30f;
     [SerializeField] private float minScale = 0.01f;
     [SerializeField] private float maxScale = 0.5f;
     [SerializeField] private float maxDistance = 30f;
-    [SerializeField] private float offscreenDelay = 0.3f; // seconds to wait before showing arrow
+    [SerializeField] private float offscreenDelay = 1.0f;
 
     private Camera mainCam;
     private GameObject arrowInstance;
