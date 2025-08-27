@@ -176,10 +176,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Ue the mouse to corral your stubborn sheep.
+  m_text: 'Use the mouse to corral your stubborn sheep.
 
     Don''t let them wander
-    out of the of the meadow.
+    out of the meadow.
 
     Cloudy days can be tough.'
   m_isRightToLeft: 0
