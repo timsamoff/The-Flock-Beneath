@@ -891,18 +891,18 @@ public class GameManager : MonoBehaviour
 
     float CalculateStars(int corralledSheep, int totalStartingSheep)
     {
+        if (totalStartingSheep <= 0) return 0f;
+
         float percentage = ((float)corralledSheep / totalStartingSheep) * 100f;
-        
+
         Debug.Log($"Star calculation: corralled={corralledSheep}, starting={totalStartingSheep}, percentage={percentage:F2}%");
-        
-        // Star thresholds
-        if (percentage >= 100f) return 3f;      // Perfect score
-        else if (percentage >= 90f) return 2.5f; // 90-99%
-        else if (percentage >= 80f) return 2f;   // 80-89%  
-        else if (percentage >= 70f) return 1.5f; // 70-79%
-        else if (percentage >= 60f) return 1f;   // 60-69%
-        else if (percentage >= 50f) return 0.5f; // 50-59% 
-        else return 0f;                          // Less than 50%
+
+        if (percentage >= 100f) return 3f;        // 100% = 3 stars
+        else if (percentage >= 75f) return 2.5f;  // 75%+ = 2.5 stars
+        else if (percentage >= 50f) return 2f;    // 50%+ = 2 stars
+        else if (percentage >= 25f) return 1.5f;  // 25%+ = 1.5 stars
+        else if (percentage > 0f) return 1f;      // >0% = 1 star
+        else return 0f;                           // 0% = 0 stars
     }
 
     void SaveLevelScore(int level, float stars)
