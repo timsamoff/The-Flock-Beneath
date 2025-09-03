@@ -145,7 +145,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 200
+  m_Mass: 0.1
   m_LinearDamping: 5
   m_AngularDamping: 5
   m_GravityScale: 0
@@ -214,7 +214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SheepBehavior
   wanderMinDistance: 2
   wanderMaxDistance: 8
-  wanderSpeed: 0.5
+  wanderSpeed: 1
   offscreenMargin: 2.5
   minGrazingTime: 1
   maxGrazingTime: 8
@@ -226,13 +226,12 @@ MonoBehaviour:
   shepherdDisengageDistance: 5
   shepherdStopPadding: 1.5
   timeToSettleInCorral: 1.5
-  corralCheckCooldown: 0.2
   sheepDetectionRadius: 1.2
   sheepCollisionDistance: 1.8
   collisionCheckInterval: 0.1
   shepherd: {fileID: 4412252298984751870, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
   corralZone: {fileID: 6353545762304505084, guid: 7ffda15fb2e26fb4ebd70b70da44ba71, type: 3}
-  isCurrentlyInCorral: 0
+  isCorralled: 0
 --- !u!114 &629085711089311820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,10 +245,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OffscreenIndicator
   arrowPrefab: {fileID: 7022860308532374118, guid: 0004d6d1d0e24bf4c91a73371ef144af, type: 3}
-  edgeBuffer: 80
+  edgeBuffer: 30
   minScale: 0.01
   maxScale: 0.5
-  maxDistance: 4
+  maxDistance: 30
   offscreenDelay: 0.1
 --- !u!1 &7510034431589395159
 GameObject:

@@ -18,7 +18,6 @@ public class Interactions : MonoBehaviour
 
     public void PlayNext()
     {
-        Cursor.visible = false;
         SceneManager.LoadScene("Game");
     }
 
