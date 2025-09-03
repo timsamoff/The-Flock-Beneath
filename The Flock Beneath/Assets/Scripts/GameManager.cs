@@ -193,26 +193,6 @@ public class GameManager : MonoBehaviour
         UpdateUI();
     }
 
-    // int GetFibonacciSheepCount(int level)
-    // {
-    //     if (level <= 1)
-    //     {
-    //         return level1StartingSheep;
-    //     }
-
-    //     int a = 1;
-    //     int b = level1StartingSheep;
-
-    //     for (int i = 2; i < level; i++)
-    //     {
-    //         int temp = a + b;
-    //         a = b;
-    //         b = temp;
-    //     }
-
-    //     return a + b;
-    // }
-
     int GetSheepCount(int level)
     {
         float k = 1.286f;
@@ -332,7 +312,7 @@ public class GameManager : MonoBehaviour
 
     void SpawnShepherd()
     {
-        // Check if the corral has been spawned
+        // Check if corral has been spawned
         if (spawnedCorral == null)
         {
             Debug.LogError("Corral not spawned! Cannot spawn shepherd.");
@@ -458,6 +438,7 @@ public class GameManager : MonoBehaviour
             SheepBehavior sb = sheep.GetComponent<SheepBehavior>();
             if (sb != null)
             {
+                Debug.Log($"Setting GameManager for sheep {sheep.GetInstanceID()}");
                 sb.SetGameManager(this);
 
                 if (spawnedShepherd != null)
@@ -476,7 +457,6 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
-
             successfulSpawns++;
         }
 
@@ -765,64 +745,71 @@ public class GameManager : MonoBehaviour
     public void SetTotalSheep(int count)
     {
         startingSheep = count;
-        totalSheep = count;
+        totalSheep = count; // This tracks remaining sheep (not lost or destroyed)
         Debug.Log($"SetTotalSheep called: startingSheep={startingSheep}, totalSheep={totalSheep}");
         UpdateUI();
     }
 
     public void SheepLeftCorral(SheepBehavior sheep)
     {
-        corralledSheep--;
-        Debug.Log($"SheepLeftCorral called: corralledSheep is now {corralledSheep}");
-        UpdateUI();
+        if (sheep != null && sheep.isCorralled)
+        {
+            corralledSheep--;
+            sheep.isCorralled = false;
+            Debug.Log($"SheepLeftCorral called: corralledSheep is now {corralledSheep}");
+            UpdateUI();
+        }
     }
 
     public void SheepEnteredCorral(SheepBehavior sheep)
     {
-        corralledSheep++;
-        Debug.Log("Sheep entered corral. Current count: " + corralledSheep);
-        UpdateUI();
-        CheckLevelComplete();
+        if (sheep != null && !sheep.isCorralled)
+        {
+            corralledSheep++;
+            sheep.isCorralled = true;
+            Debug.Log($"SheepEnteredCorral: corralledSheep={corralledSheep}, totalSheep={totalSheep}, startingSheep={startingSheep}");
+            UpdateUI();
+            CheckLevelComplete();
+        }
+        else
+        {
+            Debug.LogWarning($"SheepEnteredCorral called but sheep is null or already corralled: sheep={sheep}, isCorralled={(sheep != null ? sheep.isCorralled : false)}");
+        }
     }
 
     public void SheepLost(SheepBehavior sheep)
     {
+        if (sheep == null) return;
+
         lostSheep++;
-        totalSheep--;
 
-        if (sheep.isCorralled) corralledSheep--;
-
+        // Only decrement total if this sheep wasn't already counted as lost
         if (spawnedSheep.Contains(sheep.gameObject))
         {
             spawnedSheep.Remove(sheep.gameObject);
-        }
 
-        Destroy(sheep.gameObject);
+            // If sheep was corralled when lost, decrement corralled count
+            if (sheep.isCorralled)
+            {
+                corralledSheep--;
+                sheep.isCorralled = false;
+            }
+        }
 
         Debug.Log($"Sheep lost. Corralled={corralledSheep}, Lost={lostSheep}, Total={totalSheep}");
         UpdateUI();
         CheckLevelComplete();
     }
 
-    // public void SheepPuffed(SheepBehavior sheep)
-    // {
-    //     if (spawnedSheep.Contains(sheep.gameObject))
-    //     {
-    //         spawnedSheep.Remove(sheep.gameObject);
-    //     }
-
-    //     Destroy(sheep.gameObject);
-    // }
-
-
     void CheckLevelComplete()
     {
         if (isLevelTransitioning) return;
 
+    Debug.Log($"Level progress: {corralledSheep} corralled + {lostSheep} lost = {corralledSheep + lostSheep} / {startingSheep} starting");
+    
         if (corralledSheep + lostSheep >= startingSheep)
         {
             Debug.Log($"Level {currentLevel} complete! Score: {corralledSheep}/{startingSheep} sheep corralled (lost={lostSheep}).");
-
             isLevelTransitioning = true;
 
             float stars = CalculateStars(corralledSheep, startingSheep);
@@ -856,12 +843,6 @@ public class GameManager : MonoBehaviour
         return PlayerPrefs.GetInt("NextLevel", 1); // Default to level 1 if not set
     }
 
-    // private void AdvanceLevel()
-    // {
-    //     currentLevel++;
-    //     StartLevel();
-    // }
-
     void UpdateUI()
     {
         if (uiText != null)
@@ -891,18 +872,18 @@ public class GameManager : MonoBehaviour
 
     float CalculateStars(int corralledSheep, int totalStartingSheep)
     {
+        if (totalStartingSheep <= 0) return 0f;
+
         float percentage = ((float)corralledSheep / totalStartingSheep) * 100f;
-        
+
         Debug.Log($"Star calculation: corralled={corralledSheep}, starting={totalStartingSheep}, percentage={percentage:F2}%");
-        
-        // Star thresholds
-        if (percentage >= 100f) return 3f;      // Perfect score
-        else if (percentage >= 90f) return 2.5f; // 90-99%
-        else if (percentage >= 80f) return 2f;   // 80-89%  
-        else if (percentage >= 70f) return 1.5f; // 70-79%
-        else if (percentage >= 60f) return 1f;   // 60-69%
-        else if (percentage >= 50f) return 0.5f; // 50-59% 
-        else return 0f;                          // Less than 50%
+
+        if (percentage >= 100f) return 3f;        // 100% = 3 stars
+        else if (percentage >= 75f) return 2.5f;  // 75%+ = 2.5 stars
+        else if (percentage >= 50f) return 2f;    // 50%+ = 2 stars
+        else if (percentage >= 25f) return 1.5f;  // 25%+ = 1.5 stars
+        else if (percentage > 0f) return 1f;      // >0% = 1 star
+        else return 0f;                           // 0% = 0 stars
     }
 
     void SaveLevelScore(int level, float stars)
@@ -954,6 +935,13 @@ public class GameManager : MonoBehaviour
             bool testResult = IsPositionInCorral(testPositions[i]);
             Debug.Log($"Test position {i}: {testPositions[i]} -> {testResult}");
         }
+    }
+
+    [ContextMenu("Force Test Complete Level")]
+    public void ForceTestCompleteLevel()
+    {
+        corralledSheep = startingSheep;
+        CheckLevelComplete();
     }
 
     void OnDrawGizmos()

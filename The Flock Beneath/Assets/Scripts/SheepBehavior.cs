@@ -98,6 +98,17 @@ public class SheepBehavior : MonoBehaviour
     {
         EnterGrazingState();
         lastValidWanderTarget = rb.position;
+
+        // Debug GameManager reference
+        if (gameManager == null)
+        {
+            Debug.LogError($"Sheep {gameObject.name} has no GameManager reference!");
+            gameManager = FindFirstObjectByType<GameManager>();
+            if (gameManager != null)
+            {
+                Debug.Log($"Found GameManager: {gameManager.name}");
+            }
+        }
     }
 
     void Update()
@@ -164,9 +175,14 @@ public class SheepBehavior : MonoBehaviour
 
     private void CheckCorralStatus()
     {
-        if (corralZone == null || gameManager == null) return;
+        if (corralZone == null || gameManager == null)
+        {
+            Debug.LogWarning($"CheckCorralStatus: corralZone={corralZone}, gameManager={gameManager}");
+            return;
+        }
 
         bool isCurrentlyInCorral = IsFullyInsideCorral();
+        Debug.Log($"Sheep {gameObject.GetInstanceID()}: InCorral={isCurrentlyInCorral}, WasCorral={lastCorralledState}");
 
         if (isCurrentlyInCorral != lastCorralledState)
         {
@@ -175,13 +191,20 @@ public class SheepBehavior : MonoBehaviour
             if (isCurrentlyInCorral)
             {
                 isCorralled = true;
+                Debug.Log($"Calling SheepEnteredCorral for sheep {gameObject.GetInstanceID()}");
                 gameManager.SheepEnteredCorral(this);
                 EnterCorralledState();
             }
             else
             {
                 isCorralled = false;
+                Debug.Log($"Calling SheepLeftCorral for sheep {gameObject.GetInstanceID()}");
                 gameManager.SheepLeftCorral(this);
+
+                if (currentState == SheepState.Corralled || currentState == SheepState.SettlingInCorral)
+                {
+                    EnterGrazingState();
+                }
             }
         }
     }
@@ -355,7 +378,8 @@ public class SheepBehavior : MonoBehaviour
 
     private void HandleCorralled()
     {
-        if (!IsFullyInsideCorral() && isCorralled)
+        // Double-check if sheep is still in corral
+        if (!IsFullyInsideCorral())
         {
             isCorralled = false;
             gameManager.SheepLeftCorral(this);
