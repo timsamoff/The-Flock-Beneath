@@ -52,6 +52,8 @@ public class PuffyPuffy : MonoBehaviour
     
     void Update()
     {
+        if (isTransforming) return;
+
         // Check corral status
         if (sheepBehavior != null)
         {
@@ -114,47 +116,70 @@ public class PuffyPuffy : MonoBehaviour
         // Reset timer
         currentTimer = 0f;
     }
-    
+
     private IEnumerator CorralTimerCoroutine()
     {
         currentTimer = 0f;
-        
+
         while (currentTimer < corralTimer && isInCorral && !isTransforming)
         {
             currentTimer += Time.deltaTime;
-
-            if (showDebugLogs)
-                Debug.Log($"[PuffyPuffy] {gameObject.name} timer = {currentTimer:F2}/{corralTimer}");
-
             yield return null;
         }
-        
+
+        Debug.Log($"[TIMER] Completed: currentTimer={currentTimer}, isInCorral={isInCorral}, isTransforming={isTransforming}");
+
         if (currentTimer >= corralTimer && isInCorral && !isTransforming)
         {
+            Debug.Log("[TIMER] Starting transformation and preventing corral checks");
+            
+            SheepBehavior sheepBehavior = GetComponent<SheepBehavior>();
+            if (sheepBehavior != null)
+            {
+                sheepBehavior.PreventCorralStatusChanges(true);
+            }
+
             StartTransformation();
         }
-        
+
         timerCoroutine = null;
     }
-    
+
     private void StartTransformation()
     {
-        if (isTransforming) return;
-        
-        isTransforming = true;
-        
-        if (showDebugLogs)
+        try
         {
-            Debug.Log($"Sheep {gameObject.name} starting PUFF transformation!");
+            if (isTransforming) return;
+
+            isTransforming = true;
+
+            if (showDebugLogs)
+            {
+                Debug.Log($"Sheep {gameObject.name} starting PUFF transformation! isCorralled: {GetComponent<SheepBehavior>().isCorralled}");
+            }
+
+            SheepBehavior sheepBehavior = GetComponent<SheepBehavior>();
+
+            if (sheepBehavior != null)
+            {
+                sheepBehavior.PreventCorralStatusChanges(true);
+                Debug.Log("Corral status changes disabled for transformation");
+            }
+
+            OnTransformationStarted?.Invoke(this);
+
+            transformationCoroutine = StartCoroutine(PuffTransformationCoroutine());
         }
-        
-        OnTransformationStarted?.Invoke(this);
-        
-        transformationCoroutine = StartCoroutine(PuffTransformationCoroutine());
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error in StartTransformation: {e.Message}");
+        }
     }
-    
+
     private IEnumerator PuffTransformationCoroutine()
     {
+        Debug.Log("PuffTransformationCoroutine STARTED");
+
         float elapsedTime = 0f;
         Vector3 startScale = transform.localScale;
         Vector3 endScale = originalScale * targetScale;
@@ -205,20 +230,17 @@ public class PuffyPuffy : MonoBehaviour
 
         OnTransformationCompleted?.Invoke(this);
 
-        // if (sheepBehavior != null)
-        // {
-        //     GameManager gameManager = sheepBehavior.GetGameManager();
-        //     if (gameManager != null)
-        //     {
-        //         // Pass the sheep behavior reference, not just increment count
-        //         gameManager.SheepPuffed(sheepBehavior);
-        //     }
-        // }
-
         yield return new WaitForSeconds(0.2f);
+
+        GameManager gameManager = FindFirstObjectByType<GameManager>();
+        if (gameManager != null)
+        {
+            gameManager.SheepDestroyedInCorral(GetComponent<SheepBehavior>());
+        }
+
         Destroy(gameObject);
     }
-    
+
     [ContextMenu("Test Fade")]
     public void TestFade()
     {

@@ -42,7 +42,6 @@ public class GameManager : MonoBehaviour
     private int totalSheep;
     private int corralledSheep = 0;
     private int lostSheep = 0;
-    private int puffedSheepCount = 0;
 
     // Clouds
     private CloudManager cloudManager;
@@ -63,6 +62,8 @@ public class GameManager : MonoBehaviour
     private bool prevShowAvoidanceBounds;
 
     private bool isLevelTransitioning = false;
+
+    private HashSet<SheepBehavior> corralledSheepSet = new HashSet<SheepBehavior>();
 
     void Start()
     {
@@ -193,26 +194,6 @@ public class GameManager : MonoBehaviour
         UpdateUI();
     }
 
-    // int GetFibonacciSheepCount(int level)
-    // {
-    //     if (level <= 1)
-    //     {
-    //         return level1StartingSheep;
-    //     }
-
-    //     int a = 1;
-    //     int b = level1StartingSheep;
-
-    //     for (int i = 2; i < level; i++)
-    //     {
-    //         int temp = a + b;
-    //         a = b;
-    //         b = temp;
-    //     }
-
-    //     return a + b;
-    // }
-
     int GetSheepCount(int level)
     {
         float k = 1.286f;
@@ -240,7 +221,6 @@ public class GameManager : MonoBehaviour
         occupiedPositions.Clear();
         corralledSheep = 0;
         lostSheep = 0;
-        puffedSheepCount = 0;
     }
 
     void SpawnCorral()
@@ -770,50 +750,69 @@ public class GameManager : MonoBehaviour
         UpdateUI();
     }
 
-    public void SheepLeftCorral(SheepBehavior sheep)
+public void SheepEnteredCorral(SheepBehavior sheep)
     {
-        corralledSheep--;
-        Debug.Log($"SheepLeftCorral called: corralledSheep is now {corralledSheep}");
-        UpdateUI();
-    }
+        if (corralledSheepSet.Contains(sheep)) return; // Already counted
 
-    public void SheepEnteredCorral(SheepBehavior sheep)
-    {
+        corralledSheepSet.Add(sheep);
         corralledSheep++;
         Debug.Log("Sheep entered corral. Current count: " + corralledSheep);
         UpdateUI();
         CheckLevelComplete();
     }
 
+    public void SheepLeftCorral(SheepBehavior sheep)
+    {
+        // Don't process if sheep is null or being destroyed
+        if (sheep == null || sheep.gameObject == null) return;
+
+        // Only decrement if sheep is still in tracking and not currently transforming
+        if (corralledSheepSet.Contains(sheep))
+        {
+            // Check if this is a PuffyPuffy sheep that's transforming
+            PuffyPuffy puffy = sheep.GetComponent<PuffyPuffy>();
+            if (puffy != null && puffy.IsTransforming())
+            {
+                Debug.Log("Prevented score decrement for transforming sheep");
+                return; // Don't decrement score for transforming sheep
+            }
+
+            corralledSheepSet.Remove(sheep);
+            corralledSheep = Mathf.Max(0, corralledSheep - 1);
+            Debug.Log($"SheepLeftCorral called: corralledSheep is now {corralledSheep}");
+            UpdateUI();
+        }
+    }
+
     public void SheepLost(SheepBehavior sheep)
     {
         lostSheep++;
-        totalSheep--;
+        Debug.Log($"Sheep lost. Corralled={corralledSheep}, Lost={lostSheep}, Total={totalSheep}");
+        UpdateUI();
+        CheckLevelComplete();
 
-        if (sheep.isCorralled) corralledSheep--;
-
+        // Clean up
         if (spawnedSheep.Contains(sheep.gameObject))
         {
             spawnedSheep.Remove(sheep.gameObject);
         }
-
-        Destroy(sheep.gameObject);
-
-        Debug.Log($"Sheep lost. Corralled={corralledSheep}, Lost={lostSheep}, Total={totalSheep}");
-        UpdateUI();
-        CheckLevelComplete();
     }
 
-    // public void SheepPuffed(SheepBehavior sheep)
-    // {
-    //     if (spawnedSheep.Contains(sheep.gameObject))
-    //     {
-    //         spawnedSheep.Remove(sheep.gameObject);
-    //     }
+    public void SheepDestroyedInCorral(SheepBehavior sheep)
+    {
+        // Remove from tracking set without affecting score
+        if (sheep != null && corralledSheepSet.Contains(sheep))
+        {
+            corralledSheepSet.Remove(sheep);
+        }
 
-    //     Destroy(sheep.gameObject);
-    // }
-
+        // Clean up
+        if (spawnedSheep.Contains(sheep.gameObject))
+        {
+            spawnedSheep.Remove(sheep.gameObject);
+        }
+        Debug.Log($"Corralled sheep destroyed. Remaining: {spawnedSheep.Count}");
+    }
 
     void CheckLevelComplete()
     {
@@ -856,17 +855,15 @@ public class GameManager : MonoBehaviour
         return PlayerPrefs.GetInt("NextLevel", 1); // Default to level 1 if not set
     }
 
-    // private void AdvanceLevel()
-    // {
-    //     currentLevel++;
-    //     StartLevel();
-    // }
-
     void UpdateUI()
     {
         if (uiText != null)
         {
-            string newText = $"{corralledSheep} / {startingSheep}";
+            // Clamp at 0
+            int displayCorralled = Mathf.Max(0, corralledSheep);
+            int displayStarting = Mathf.Max(0, startingSheep);
+
+            string newText = $"{displayCorralled} / {displayStarting}";
             uiText.text = newText;
             Debug.Log($"UI Updated: {newText} (Lost: {lostSheep}, Remaining: {totalSheep})");
         }

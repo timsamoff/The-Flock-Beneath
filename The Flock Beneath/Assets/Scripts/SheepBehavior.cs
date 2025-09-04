@@ -61,6 +61,8 @@ public class SheepBehavior : MonoBehaviour
     private const float maxStuckTime = 2f;
     private float timeEnteredCorral = -1f;
 
+    private bool preventCorralStatusChanges = false;
+
     private float lastCollisionCheck = 0f;
     private bool hasCollisionThisFrame = false;
     private float shepherdFollowDistanceSqr;
@@ -101,7 +103,7 @@ public class SheepBehavior : MonoBehaviour
     }
 
     void Update()
-    {
+    {        
         if (Keyboard.current.gKey.wasPressedThisFrame)
         {
             showGizmos = !showGizmos;
@@ -157,14 +159,14 @@ public class SheepBehavior : MonoBehaviour
         gameManager = gm;
     }
 
-    public GameManager GetGameManager()
+    public void PreventCorralStatusChanges(bool prevent)
     {
-        return gameManager;
+        preventCorralStatusChanges = prevent;
     }
 
     private void CheckCorralStatus()
     {
-        if (corralZone == null || gameManager == null) return;
+        if (corralZone == null || gameManager == null || preventCorralStatusChanges) return;
 
         bool isCurrentlyInCorral = IsFullyInsideCorral();
 
@@ -178,7 +180,7 @@ public class SheepBehavior : MonoBehaviour
                 gameManager.SheepEnteredCorral(this);
                 EnterCorralledState();
             }
-            else
+            else if (isCorralled)
             {
                 isCorralled = false;
                 gameManager.SheepLeftCorral(this);
@@ -603,10 +605,10 @@ public class SheepBehavior : MonoBehaviour
         float horzExtent = vertExtent * mainCam.aspect;
 
         Vector3 camPos = mainCam.transform.position;
-        float leftBound   = camPos.x - horzExtent;
-        float rightBound  = camPos.x + horzExtent;
+        float leftBound = camPos.x - horzExtent;
+        float rightBound = camPos.x + horzExtent;
         float bottomBound = camPos.y - vertExtent;
-        float topBound    = camPos.y + vertExtent;
+        float topBound = camPos.y + vertExtent;
 
         Vector2 pos = transform.position;
 

@@ -199,7 +199,7 @@ MonoBehaviour:
   corralTimer: 5
   targetScale: 2
   transformationDuration: 0.5
-  showDebugLogs: 0
+  showDebugLogs: 1
 --- !u!114 &7492667063472959867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,13 +226,12 @@ MonoBehaviour:
   shepherdDisengageDistance: 5
   shepherdStopPadding: 1.5
   timeToSettleInCorral: 1.5
-  corralCheckCooldown: 0.2
   sheepDetectionRadius: 1.2
   sheepCollisionDistance: 1.8
   collisionCheckInterval: 0.1
   shepherd: {fileID: 4412252298984751870, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
   corralZone: {fileID: 6353545762304505084, guid: 7ffda15fb2e26fb4ebd70b70da44ba71, type: 3}
-  isCurrentlyInCorral: 0
+  isCorralled: 0
 --- !u!114 &629085711089311820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,7 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OffscreenIndicator
   arrowPrefab: {fileID: 7022860308532374118, guid: 0004d6d1d0e24bf4c91a73371ef144af, type: 3}
-  edgeBuffer: 80
+  edgeBuffer: 60
   minScale: 0.01
   maxScale: 0.5
   maxDistance: 4
