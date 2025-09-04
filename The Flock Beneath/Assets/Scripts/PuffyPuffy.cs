@@ -21,6 +21,7 @@ public class PuffyPuffy : MonoBehaviour
     
     private SheepBehavior sheepBehavior;
     private SpriteRenderer spriteRenderer;
+    private Collider2D sheepCollider;
     private Vector3 originalScale;
     private Color originalColor;
     
@@ -34,6 +35,8 @@ public class PuffyPuffy : MonoBehaviour
     void Start()
     {
         sheepBehavior = GetComponent<SheepBehavior>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        sheepCollider = GetComponent<Collider2D>();
         
         childSprites = GetComponentsInChildren<SpriteRenderer>();
 
@@ -43,6 +46,10 @@ public class PuffyPuffy : MonoBehaviour
         }
 
         originalScale = transform.localScale;
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
 
         if (showDebugLogs)
         {
@@ -164,6 +171,16 @@ public class PuffyPuffy : MonoBehaviour
             {
                 sheepBehavior.PreventCorralStatusChanges(true);
                 Debug.Log("Corral status changes disabled for transformation");
+            }
+
+            // Disable the collider during transformation
+            if (sheepCollider != null)
+            {
+                sheepCollider.enabled = false;
+                if (showDebugLogs)
+                {
+                    Debug.Log($"Collider disabled for {gameObject.name}");
+                }
             }
 
             OnTransformationStarted?.Invoke(this);
@@ -325,6 +342,16 @@ public class PuffyPuffy : MonoBehaviour
         if (canvasGroup != null)
         {
             canvasGroup.alpha = 1f;
+        }
+        
+        // Re-enable collider if disabled
+        if (sheepCollider != null && !sheepCollider.enabled)
+        {
+            sheepCollider.enabled = true;
+            if (showDebugLogs)
+            {
+                Debug.Log($"Collider re-enabled for {gameObject.name}");
+            }
         }
         
         if (showDebugLogs)

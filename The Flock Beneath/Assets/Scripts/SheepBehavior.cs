@@ -573,6 +573,38 @@ public class SheepBehavior : MonoBehaviour
         );
     }
 
+    private void MoveToward(Vector2 target, float speed)
+    {
+        if (IsFenceBetweenSimple(rb.position, target))
+        {
+            Vector2 avoidanceDirection = GetDirectionAwayFromFence();
+            if (avoidanceDirection != Vector2.zero)
+            {
+                Vector2 alternativeTarget = rb.position + avoidanceDirection * wanderMinDistance;
+
+                if (!IsFenceBetweenSimple(rb.position, alternativeTarget))
+                {
+                    wanderTarget = alternativeTarget;
+                    target = alternativeTarget;
+                }
+                else
+                {
+                    EnterGrazingState();
+                    return;
+                }
+            }
+            else
+            {
+                EnterGrazingState();
+                return;
+            }
+        }
+
+        Vector2 direction = (target - rb.position).normalized;
+        Vector2 desiredVelocity = direction * speed;
+        rb.linearVelocity = Vector2.SmoothDamp(rb.linearVelocity, desiredVelocity, ref velocityRef, 0.2f);
+    }
+
     private void MoveTowardInCorral(Vector2 target, float speed)
     {
         if (!IsFullyInsideCorral())
