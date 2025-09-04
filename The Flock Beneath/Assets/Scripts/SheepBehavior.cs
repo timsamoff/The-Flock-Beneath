@@ -42,6 +42,11 @@ public class SheepBehavior : MonoBehaviour
     [SerializeField] private float sheepCollisionDistance = 1.8f;
     [SerializeField] private float collisionCheckInterval = 0.1f;
 
+    [Header("Debug Settings")]
+    [SerializeField] private bool enableDebugLogs = false;
+    [SerializeField] private bool showDebugGizmos = true;
+    [SerializeField] private float debugLogInterval = 1f;
+
     [Header("References")]
     [SerializeField] private Transform shepherd;
     [SerializeField] private Collider2D corralZone;
@@ -76,6 +81,11 @@ public class SheepBehavior : MonoBehaviour
     private static readonly Collider2D[] tempColliderArray = new Collider2D[10];
     private static bool showGizmos = false;
 
+    // Debug variables
+    private float lastDebugLogTime = 0f;
+    private string lastDebugState = "";
+    private int debugRepeatCount = 0;
+
     [HideInInspector] public bool isCorralled = false;
     private bool lastCorralledState = false;
 
@@ -109,6 +119,13 @@ public class SheepBehavior : MonoBehaviour
             showGizmos = !showGizmos;
         }
 
+        // Add debug toggle
+        if (Keyboard.current.dKey.wasPressedThisFrame)
+        {
+            enableDebugLogs = !enableDebugLogs;
+            Debug.Log($"Sheep debug logs: {(enableDebugLogs ? "ENABLED" : "DISABLED")}");
+        }
+
         CheckCorralStatus();
     }
 
@@ -124,8 +141,8 @@ public class SheepBehavior : MonoBehaviour
         if (hasCollisionThisFrame)
         {
             HandleSheepCollision();
-            rb.linearVelocity = Vector2.zero;
-            return;
+            // rb.linearVelocity = Vector2.zero;
+            // return;
         }
 
         switch (currentState)
@@ -152,6 +169,32 @@ public class SheepBehavior : MonoBehaviour
 
         CheckScreenBounds();
         CheckIfStuck();
+    }
+
+    // ADD THIS MISSING METHOD
+    private void LogDebug(string message)
+    {
+        if (!enableDebugLogs) return;
+        
+        string fullMessage = $"{gameObject.name}: {message}";
+        
+        // Only log if message changed or enough time passed
+        if (fullMessage != lastDebugState || Time.time - lastDebugLogTime >= debugLogInterval)
+        {
+            if (debugRepeatCount > 0)
+            {
+                Debug.Log($"{lastDebugState} (repeated {debugRepeatCount} times)");
+            }
+            
+            Debug.Log(fullMessage);
+            lastDebugState = fullMessage;
+            lastDebugLogTime = Time.time;
+            debugRepeatCount = 0;
+        }
+        else
+        {
+            debugRepeatCount++;
+        }
     }
 
     public void SetGameManager(GameManager gm)
@@ -257,7 +300,27 @@ public class SheepBehavior : MonoBehaviour
 
         RotateTowardMovement();
 
-        if ((rb.position - wanderTarget).sqrMagnitude < 0.04f)
+        Vector2 toTarget = wanderTarget - rb.position;
+        float distanceToTargetSqr = toTarget.sqrMagnitude;
+
+        if (distanceToTargetSqr > 0.1f)
+        {
+            float progress = Vector2.Dot(toTarget.normalized, rb.linearVelocity.normalized);
+
+            if (progress < 0.3f && rb.linearVelocity.sqrMagnitude > 0.01f)
+            {
+                LogDebug("Blocked during wandering - changing direction");
+                wanderTarget = GetValidWanderTarget();
+            }
+
+            else if (rb.linearVelocity.sqrMagnitude < 0.001f && distanceToTargetSqr > 1f)
+            {
+                LogDebug("Stuck during wandering - changing direction");
+                wanderTarget = GetValidWanderTarget();
+            }
+        }
+
+        if (distanceToTargetSqr < 0.04f)
             EnterGrazingState();
     }
 
@@ -279,34 +342,52 @@ public class SheepBehavior : MonoBehaviour
             return;
         }
 
-        float distanceToShepherdSqr = (rb.position - (Vector2)shepherd.position).sqrMagnitude;
-        if (distanceToShepherdSqr > shepherdDisengageDistanceSqr)
-        {
-            EnterDisengagingState();
-            return;
-        }
+        float directDistanceToShepherdSqr = (rb.position - (Vector2)shepherd.position).sqrMagnitude;
+        float directDistanceToShepherd = Mathf.Sqrt(directDistanceToShepherdSqr);
 
-        followTimer += Time.fixedDeltaTime;
-        disengageCheckTimer -= Time.fixedDeltaTime;
+        // Check if blocked by another sheep
+        bool isBlockedBySheep = false;
+        RaycastHit2D hit = Physics2D.Linecast(rb.position, shepherd.position,
+            LayerMask.GetMask("Sheep", "fence"));
 
-        if (followTimer >= minFollowTime && disengageCheckTimer <= 0f)
+        if (hit.collider != null && hit.collider.gameObject.CompareTag("sheep") && hit.collider != sheepCollider)
         {
-            disengageCheckTimer = disengageCheckInterval;
-            if (Random.value < disengageChancePerCheck)
+            isBlockedBySheep = true;
+            
+            // If blocked by a sheep that's following, then follow that sheep
+            SheepBehavior otherSheep = hit.collider.GetComponent<SheepBehavior>();
+            if (otherSheep != null && otherSheep.IsFollowingShepherd())
             {
-                EnterDisengagingState();
+                // Follow sheep in front instead of the shepherd
+                Vector2 directionToFrontSheep = ((Vector2)hit.collider.transform.position - rb.position).normalized;
+                Vector2 flockFollowTarget = (Vector2)hit.collider.transform.position - directionToFrontSheep * (shepherdStopPadding * 0.8f);
+                MoveToward(flockFollowTarget, followSpeed);
+                RotateToward(hit.collider.transform.position);
+                
+                LogDebug($"Following {hit.collider.gameObject.name} (blocked by sheep)");
                 return;
             }
         }
 
+        // Original distance check with tolerance for blocked sheep
+        float effectiveDisengageDistance = isBlockedBySheep ?
+            shepherdDisengageDistanceSqr * 2f : shepherdDisengageDistanceSqr;
+
+        if (directDistanceToShepherdSqr > effectiveDisengageDistance)
+        {
+            LogDebug($"DISENGAGING - Too far from shepherd! Dist: {directDistanceToShepherd:F2}");
+            EnterDisengagingState();
+            return;
+        }
+
         Vector2 directionToShepherd = ((Vector2)shepherd.position - rb.position).normalized;
-        float distanceToShepherd = Mathf.Sqrt(distanceToShepherdSqr);
 
         Vector2 followTarget;
-        if (distanceToShepherd > shepherdStopPadding)
+        if (directDistanceToShepherd > shepherdStopPadding)
         {
             followTarget = (Vector2)shepherd.position - directionToShepherd * shepherdStopPadding;
             MoveToward(followTarget, followSpeed);
+            LogDebug($"Moving toward shepherd - Dist: {directDistanceToShepherd:F2}");
         }
         else
         {
@@ -322,9 +403,18 @@ public class SheepBehavior : MonoBehaviour
             }
 
             MoveToward(orbitTarget, followSpeed * 0.5f);
+            LogDebug($"Orbiting shepherd - Dist: {directDistanceToShepherd:F2}");
         }
 
         RotateToward(shepherd.position);
+    }
+
+    private bool HasClearPathToShepherd()
+    {
+        RaycastHit2D hit = Physics2D.Linecast(rb.position, shepherd.position,
+            LayerMask.GetMask("Sheep", "fence"));
+
+        return hit.collider == null || hit.collider.CompareTag("Player");
     }
 
     private void EnterSettlingInCorralState()
@@ -576,8 +666,23 @@ public class SheepBehavior : MonoBehaviour
             if (col == sheepCollider) continue;
 
             float distanceSqr = (rb.position - (Vector2)col.transform.position).sqrMagnitude;
-            if (distanceSqr < sheepCollisionDistanceSqr)
-                return true;
+
+            // Only consider it a collision if close
+            if (distanceSqr < sheepCollisionDistanceSqr * 0.25f)  // More restrictive
+            {
+                // Check if sheep are moving toward each other
+                SheepBehavior otherSheep = col.GetComponent<SheepBehavior>();
+                if (otherSheep != null)
+                {
+                    Vector2 relativeVelocity = rb.linearVelocity - otherSheep.rb.linearVelocity;
+                    Vector2 toOther = (Vector2)col.transform.position - rb.position;
+
+                    if (Vector2.Dot(relativeVelocity, toOther) < 0)  // Moving toward each other
+                    {
+                        return true;
+                    }
+                }
+            }
         }
 
         return false;
@@ -585,15 +690,13 @@ public class SheepBehavior : MonoBehaviour
 
     private void HandleSheepCollision()
     {
-        rb.linearVelocity = Vector2.zero;
-        rb.angularVelocity = 0f;
+        rb.linearVelocity *= 0.7f;
+
+        LogDebug("Collided with another sheep - slowing down");
 
         if (currentState == SheepState.Following && IsShepherdInRange())
-            stateTimer = Random.Range(0.1f, 0.2f);
-        else
         {
-            EnterGrazingState();
-            stateTimer = Random.Range(maxGrazingTime, maxGrazingTime * 1.5f);
+            stateTimer = Random.Range(0.05f, 0.15f);
         }
     }
 

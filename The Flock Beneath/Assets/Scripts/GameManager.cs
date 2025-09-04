@@ -382,8 +382,6 @@ public class GameManager : MonoBehaviour
         float playableTop = screenTop;
 
         Debug.Log($"Attempting to spawn {count} sheep anywhere on screen.");
-        Debug.Log($"Playable area: Left={playableLeft:F2}, Right={playableRight:F2}, Bottom={playableBottom:F2}, Top={playableTop:F2}");
-        Debug.Log($"Playable area size: {(playableRight - playableLeft) * (playableTop - playableBottom):F2} square units");
 
         for (int i = 0; i < count && attempts < maxTotalAttempts; i++)
         {
@@ -412,26 +410,24 @@ public class GameManager : MonoBehaviour
                 if (attempts % (maxSpawnAttempts / 2) == 0)
                 {
                     currentMinDistance = Mathf.Max(0.5f, currentMinDistance * 0.8f);
-                    Debug.Log($"Relaxing distance constraint: minDistance={currentMinDistance:F2}");
                 }
                 i--; // Retry sheep
                 continue;
             }
 
-            Debug.Log($"Spawning sheep {i + 1} at position {spawnPos}");
-
             float randomZ = Random.Range(0f, 360f);
             GameObject sheep = Instantiate(sheepPrefab, spawnPos, Quaternion.Euler(0f, 0f, randomZ));
+
+            // Give each sheep a unique name
+            sheep.name = $"Sheep_{i + 1}";
+
             spawnedSheep.Add(sheep);
             occupiedPositions.Add(spawnPos);
 
             // Check if sheep spawned on top of corral and teleport
             bool sheepInCorral = IsPositionInCorral(spawnPos);
-            Debug.Log($"Sheep {i + 1} spawn check: position={spawnPos}, inCorral={sheepInCorral}");
-
             if (sheepInCorral)
             {
-                Debug.Log($"DETECTED: Sheep {i + 1} spawned in corral, calling teleport...");
                 TeleportSheepAwayFromCorral(sheep);
             }
 
@@ -460,8 +456,7 @@ public class GameManager : MonoBehaviour
             successfulSpawns++;
         }
 
-        Debug.Log($"Successfully spawned {successfulSpawns}/{count} sheep after {attempts} attempts");
-        Debug.Log($"Final constraints used: minDistance={currentMinDistance:F2}");
+        Debug.Log($"Successfully spawned {successfulSpawns}/{count} sheep");
     }
 
     bool IsPositionInCorral(Vector3 position)

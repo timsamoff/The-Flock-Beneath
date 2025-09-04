@@ -145,7 +145,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 200
+  m_Mass: 150
   m_LinearDamping: 5
   m_AngularDamping: 5
   m_GravityScale: 0
@@ -199,7 +199,7 @@ MonoBehaviour:
   corralTimer: 5
   targetScale: 2
   transformationDuration: 0.5
-  showDebugLogs: 1
+  showDebugLogs: 0
 --- !u!114 &7492667063472959867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222,13 +222,16 @@ MonoBehaviour:
   shepherdFollowDistance: 2.5
   minFollowTime: 4
   disengageCheckInterval: 2
-  disengageChancePerCheck: 0.15
+  disengageChancePerCheck: 0.1
   shepherdDisengageDistance: 5
   shepherdStopPadding: 1.5
   timeToSettleInCorral: 1.5
   sheepDetectionRadius: 1.2
-  sheepCollisionDistance: 1.8
-  collisionCheckInterval: 0.1
+  sheepCollisionDistance: 2
+  collisionCheckInterval: 0.9
+  enableDebugLogs: 0
+  showDebugGizmos: 0
+  debugLogInterval: 1
   shepherd: {fileID: 4412252298984751870, guid: 9f4115a796260194c9b93f086608ef9c, type: 3}
   corralZone: {fileID: 6353545762304505084, guid: 7ffda15fb2e26fb4ebd70b70da44ba71, type: 3}
   isCorralled: 0
