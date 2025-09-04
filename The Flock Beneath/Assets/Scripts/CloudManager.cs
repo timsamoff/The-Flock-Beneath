@@ -7,7 +7,7 @@ public class CloudManager : MonoBehaviour
     [SerializeField] private GameObject[] cloudPrefabs;
     
     [Header("Spawning Settings")]
-    [SerializeField] private float spawnInterval = 8f; // Time between cloud spawns
+    [SerializeField] private float baseSpawnInterval = 8f; // Starting time between cloud spawns
     [SerializeField] private float spawnIntervalVariation = 3f; // Random timing
     [SerializeField] private float spawnBuffer = 6f; // Spawn cloud buffer
     
@@ -15,9 +15,10 @@ public class CloudManager : MonoBehaviour
     [SerializeField] private bool enableCloudSpawning = true;
     
     [Header("Level Scaling")]
-    [SerializeField] private float difficultyScaling = 0.1f;
+    [SerializeField] private float spawnRateScaling = 0.15f; // How much faster clouds spawn per level
     [SerializeField] private int minLevel = 1; // When to begin spawning clouds
-    [SerializeField] private float cloudScalingFactor = 1.4f;
+    [SerializeField] private int maxConcurrentClouds = 4; // Absolute maximum clouds on screen
+    [SerializeField] private float minSpawnInterval = 1.5f; // Fastest possible spawn rate
     
     private float nextSpawnTime;
     private float screenLeftEdge;
@@ -91,7 +92,9 @@ public class CloudManager : MonoBehaviour
                 return;
             }
             
-            targetCloudCount = Mathf.RoundToInt(1 + (currentLevel - 1) * cloudScalingFactor);
+            // Very gradual increase in maximum concurrent clouds
+            // Level 1-5: 1 cloud, Level 6-10: 2 clouds, Level 11-15: 3 clouds, Level 16+: 4 clouds
+            targetCloudCount = Mathf.Min(1 + Mathf.FloorToInt((currentLevel - 1) / 5f), maxConcurrentClouds);
             
             Debug.Log($"Level {currentLevel}: Target cloud count = {targetCloudCount}");
         }
@@ -145,19 +148,21 @@ public class CloudManager : MonoBehaviour
     
     void ScheduleNextSpawn()
     {
-        float baseInterval = spawnInterval;
+        float calculatedInterval = baseSpawnInterval;
         
         // Increase spawn rate based on level difficulty
         if (gameManager != null)
         {
             int currentLevel = gameManager.GetCurrentLevel();
-            float levelModifier = Mathf.Max(0.3f, 1f - (currentLevel - minLevel) * difficultyScaling);
-            baseInterval *= levelModifier;
+            
+            // Exponential decay for spawn interval - clouds spawn much faster as levels increase
+            float levelFactor = Mathf.Pow(0.85f, currentLevel - 1); // 15% faster each level
+            calculatedInterval = Mathf.Max(minSpawnInterval, baseSpawnInterval * levelFactor);
         }
         
         // Add random variation
         float variation = Random.Range(-spawnIntervalVariation, spawnIntervalVariation);
-        float actualInterval = Mathf.Max(1f, baseInterval + variation); // Min 1 sec
+        float actualInterval = Mathf.Max(minSpawnInterval, calculatedInterval + variation);
         
         nextSpawnTime = Time.time + actualInterval;
         
@@ -171,7 +176,7 @@ public class CloudManager : MonoBehaviour
             activeClouds.Remove(cloud);
             Debug.Log($"Cloud removed from active list. Active clouds: {activeClouds.Count}/{targetCloudCount}");
             
-            // Schedule next spawn sooner if target
+            // Schedule next spawn sooner if under target
             if (activeClouds.Count < targetCloudCount)
             {
                 ScheduleNextSpawn();

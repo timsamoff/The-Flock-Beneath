@@ -222,7 +222,7 @@ MonoBehaviour:
   shepherdFollowDistance: 2.5
   minFollowTime: 4
   disengageCheckInterval: 2
-  disengageChancePerCheck: 0.1
+  disengageChancePerCheck: 0.125
   shepherdDisengageDistance: 5
   shepherdStopPadding: 1.5
   timeToSettleInCorral: 1.5

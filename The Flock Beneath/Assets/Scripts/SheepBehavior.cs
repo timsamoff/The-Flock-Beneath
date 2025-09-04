@@ -213,6 +213,17 @@ public class SheepBehavior : MonoBehaviour
 
         bool isCurrentlyInCorral = IsFullyInsideCorral();
 
+        if (isCorralled && !isCurrentlyInCorral)
+        {
+            isCorralled = false;
+            gameManager.SheepLeftCorral(this);
+            if (currentState == SheepState.Corralled || currentState == SheepState.SettlingInCorral)
+            {
+                EnterGrazingState();
+            }
+            return;
+        }
+
         if (isCurrentlyInCorral != lastCorralledState)
         {
             lastCorralledState = isCurrentlyInCorral;
@@ -447,6 +458,15 @@ public class SheepBehavior : MonoBehaviour
 
     private void HandleCorralled()
     {
+        // Safety check - if we're not actually in corral anymore, exit this state
+        if (!IsFullyInsideCorral() && isCorralled)
+        {
+            isCorralled = false;
+            gameManager.SheepLeftCorral(this);
+            EnterGrazingState();
+            return;
+        }
+
         if (!IsFullyInsideCorral() && isCorralled)
         {
             isCorralled = false;
@@ -553,47 +573,22 @@ public class SheepBehavior : MonoBehaviour
         );
     }
 
-    private void MoveToward(Vector2 target, float speed)
-    {
-        if (IsFenceBetweenSimple(rb.position, target))
-        {
-            Vector2 avoidanceDirection = GetDirectionAwayFromFence();
-            if (avoidanceDirection != Vector2.zero)
-            {
-                Vector2 alternativeTarget = rb.position + avoidanceDirection * wanderMinDistance;
-
-                if (!IsFenceBetweenSimple(rb.position, alternativeTarget))
-                {
-                    wanderTarget = alternativeTarget;
-                    target = alternativeTarget;
-                }
-                else
-                {
-                    EnterGrazingState();
-                    return;
-                }
-            }
-            else
-            {
-                EnterGrazingState();
-                return;
-            }
-        }
-
-        Vector2 direction = (target - rb.position).normalized;
-        Vector2 desiredVelocity = direction * speed;
-        rb.linearVelocity = Vector2.SmoothDamp(rb.linearVelocity, desiredVelocity, ref velocityRef, 0.2f);
-    }
-
     private void MoveTowardInCorral(Vector2 target, float speed)
     {
+        if (!IsFullyInsideCorral())
+        {
+            isCorralled = false;
+            gameManager.SheepLeftCorral(this);
+            EnterGrazingState();
+            return;
+        }
+
         if (!corralZone.bounds.Contains(target))
             target = GetRandomPointInCorral();
 
         Vector2 direction = (target - rb.position).normalized;
         Vector2 desiredVelocity = direction * speed;
         Vector2 newVelocity = Vector2.SmoothDamp(rb.linearVelocity, desiredVelocity, ref velocityRef, 0.2f);
-
         Vector2 futurePosition = rb.position + newVelocity * Time.fixedDeltaTime;
         if (corralZone.bounds.Contains(futurePosition))
             rb.linearVelocity = newVelocity;

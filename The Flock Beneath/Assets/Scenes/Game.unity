@@ -636,13 +636,14 @@ MonoBehaviour:
   - {fileID: 8007642408582116104, guid: 599c6292c4869e647bd9ca61cd0695fa, type: 3}
   - {fileID: 8007642408582116104, guid: 063733df328df2547bfa5a4b849b38bd, type: 3}
   - {fileID: 8007642408582116104, guid: 7692ac507fcc1b246b192d4042951de3, type: 3}
-  spawnInterval: 8
+  baseSpawnInterval: 8
   spawnIntervalVariation: 3
   spawnBuffer: 6
   enableCloudSpawning: 1
-  difficultyScaling: 0.1
+  spawnRateScaling: 0.2
   minLevel: 1
-  cloudScalingFactor: 1.4
+  maxConcurrentClouds: 4
+  minSpawnInterval: 1.5
 --- !u!114 &918588602
 MonoBehaviour:
   m_ObjectHideFlags: 0
