@@ -145,7 +145,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShepherdController
   maxSpeed: 2.5
   accelerationTime: 1
-  stopThreshold: 0.1
+  stopThreshold: 0.05
   rotationSpeed: 750
 --- !u!50 &7327912446408573234
 Rigidbody2D:
