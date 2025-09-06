@@ -15,12 +15,12 @@ Than shepherding.
 But if I don't work,
 
 We may not eat.
-## Instructions:
+## Instructions
 1. Use the mouse to corral your stubborn sheep.
 2. Don't let them wander out of the meadow.
 3. Cloudy days can be tough.
 4. There is no end.
-## Music:
+## Music
 _Harp- Arpeggio - Nordic Tune - Shepherds Melody_
 
 Gertraut Hecher
@@ -33,7 +33,7 @@ Serge Quadrado
 
 https://www.youtube.com/channel/UCXoTndjy3ufws987zYuh-5Q
 
-## Game Design and Development:
+## Game Design and Development
 Tim Samoff
 
 https://timsamoff.itch.io
