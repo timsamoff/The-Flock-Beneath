@@ -1,7 +1,7 @@
-<img  src="https://github.com/timsamoff/The-Flock-Beneath/blob/main/itch/TFB_Cover.png?raw=true" width="320px" alt="The Flock Beneath">
+<img  src="https://github.com/timsamoff/The-Flock-Beneath/blob/main/itch/TFB_Cover.png?raw=true" width="100px" alt="The Flock Beneath">
 
 # The Flock Beneath
-A simple sheepherding game.
+A simple, cozy sheepherding game.
 
 **Play at https://timsamoff.itch.io/flock**
 ## Description
