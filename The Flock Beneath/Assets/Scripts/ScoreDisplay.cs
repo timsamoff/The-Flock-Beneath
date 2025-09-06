@@ -43,8 +43,8 @@ public class ScoreDisplay : MonoBehaviour
     {
         if (levelText != null)
         {
-            levelText.text = $"Level {level}";
-            Debug.Log($"Level text updated to: Level {level}");
+            levelText.text = $"Day {level}";
+            Debug.Log($"Level text updated to: Day {level}");
         }
         else
         {
