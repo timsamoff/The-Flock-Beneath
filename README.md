@@ -1,4 +1,4 @@
-<img  src="https://github.com/timsamoff/The-Flock-Beneath/blob/main/The%20Flock%20Beneath/Assets/Images/sheep.png?raw=true" width="100px" alt="The Flock Beneath">
+<img  src="https://github.com/timsamoff/The-Flock-Beneath/blob/main/itch/TFB_Cover.png?raw=true" width="100px" alt="The Flock Beneath">
 
 # The Flock Beneath
 A simple sheepherding game.
